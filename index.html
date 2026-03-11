@@ -373,7 +373,7 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
 
 <div class="nav">
   <div class="nav-inner">
-    <div style="display:flex;align-items:center;gap:6px"><span class="nav-badge">Lab</span><button class="install-btn" id="install-btn" onclick="installApp()" title="Installer BenchMate">⬇ Installer</button><button class="lang-btn" id="dark-btn" onclick="toggleDark()" title="Dark mode">☀️</button></div>
+    <div style="display:flex;align-items:center;gap:6px"><span class="nav-badge">Lab</span><button class="install-btn" id="install-btn" onclick="installApp()">⬇ Installer</button><button class="lang-btn" id="dark-btn" onclick="toggleDark()" title="Dark mode">☀️</button></div>
     <div style="text-align:center">
       <div class="nav-title">BenchMate</div>
       <div class="nav-step" id="nav-step" style="font-size:11px;margin-top:1px">0 reactif</div>
@@ -2589,6 +2589,32 @@ function renderLots() {
 }
 window.renderLots = renderLots;
 
+
+var _deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _deferredPrompt = e;
+});
+window.addEventListener('appinstalled', function() {
+  _deferredPrompt = null;
+  var btn = document.getElementById('install-btn');
+  if (btn) btn.style.display = 'none';
+  toast('BenchMate installé !');
+});
+window.installApp = function() {
+  if (_deferredPrompt) {
+    _deferredPrompt.prompt();
+    _deferredPrompt.userChoice.then(function() {
+      _deferredPrompt = null;
+      var btn = document.getElementById('install-btn');
+      if (btn) btn.style.display = 'none';
+    });
+  } else {
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    var msg = isIOS ? 'iOS : bouton Partager puis "Sur l’écran d’accueil"' : 'Chrome : menu ⋮ puis "Ajouter à l’écran d’accueil"';
+    alert(msg);
+  }
+};
 // ─── INIT ─────────────────────────────────────────────────────────────
 applyDark(); updProg(); updSavedBadge(); updAbBadge(); checkUrlRecipe(); applyI18n(); initAuth();
 
