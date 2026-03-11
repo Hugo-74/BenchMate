@@ -2617,6 +2617,11 @@ window.installApp = function() {
 };
 // ─── INIT ─────────────────────────────────────────────────────────────
 applyDark(); updProg(); updSavedBadge(); updAbBadge(); checkUrlRecipe(); applyI18n(); initAuth();
+// Cache le bouton si l'app est déjà installée (mode standalone)
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+  var _ib = document.getElementById('install-btn');
+  if (_ib) _ib.style.display = 'none';
+}
 
 })();
 </script>
