@@ -258,6 +258,8 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
 /* LANG TOGGLE */
 .lang-btn { background:var(--fill); border:none; border-radius:8px; padding:5px 11px; font-family:inherit; font-size:12px; font-weight:700; color:var(--l2); cursor:pointer; letter-spacing:0.05em; flex-shrink:0; }
 .lang-btn:active { opacity:0.6; }
+.install-btn { display:none; align-items:center; gap:5px; background:var(--blue); color:#fff; border:none; border-radius:10px; padding:5px 11px; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.75} }
 
 /* CONVERSIONS */
 .cv-card { background:var(--surface); border-radius:var(--r); overflow:hidden; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
@@ -372,7 +374,7 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
 
 <div class="nav">
   <div class="nav-inner">
-    <div style="display:flex;align-items:center;gap:6px"><span class="nav-badge">Lab</span><button class="lang-btn" id="dark-btn" onclick="toggleDark()" title="Dark mode">☀️</button></div>
+    <div style="display:flex;align-items:center;gap:6px"><span class="nav-badge">Lab</span><button class="install-btn" id="install-btn" onclick="installApp()" title="Installer BenchMate">⬇ Installer</button><button class="lang-btn" id="dark-btn" onclick="toggleDark()" title="Dark mode">☀️</button></div>
     <div style="text-align:center">
       <div class="nav-title">BenchMate</div>
       <div class="nav-step" id="nav-step" style="font-size:11px;margin-top:1px">0 reactif</div>
@@ -2588,6 +2590,33 @@ function renderLots() {
 }
 window.renderLots = renderLots;
 
+
+// ─── PWA INSTALL PROMPT ──────────────────────────────────────
+var _deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _deferredPrompt = e;
+  var btn = document.getElementById('install-btn');
+  if (btn) btn.style.display = 'flex';
+});
+window.addEventListener('appinstalled', function() {
+  _deferredPrompt = null;
+  var btn = document.getElementById('install-btn');
+  if (btn) btn.style.display = 'none';
+  toast('BenchMate installé !');
+});
+window.installApp = function() {
+  if (!_deferredPrompt) {
+    toast('Menu ⋮ → Ajouter à l\'écran d\'accueil');
+    return;
+  }
+  _deferredPrompt.prompt();
+  _deferredPrompt.userChoice.then(function() {
+    _deferredPrompt = null;
+    var btn = document.getElementById('install-btn');
+    if (btn) btn.style.display = 'none';
+  });
+};
 // ─── INIT ─────────────────────────────────────────────────────────────
 applyDark(); updProg(); updSavedBadge(); updAbBadge(); checkUrlRecipe(); applyI18n(); initAuth();
 
