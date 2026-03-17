@@ -786,7 +786,19 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
         <input class="mo-inp" id="lot-qty" placeholder="ex. 500 mg" maxlength="20" style="margin-bottom:0" data-i18n-ph="lots_ph_qty">
       </div>
     </div>
-    <input class="mo-inp" id="lot-notes" placeholder="Notes..." maxlength="120" style="margin-bottom:14px" data-i18n-ph="lots_ph_notes">
+    <input class="mo-inp" id="lot-notes" placeholder="Notes..." maxlength="120" style="margin-bottom:8px" data-i18n-ph="lots_ph_notes">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;background:var(--fill);border-radius:10px;padding:10px 12px">
+      <div style="flex:1">
+        <div style="font-size:12px;color:var(--l2);margin-bottom:2px" data-i18n="lots_notif_label">Alerte expiration</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" class="mo-inp" id="lot-notif-days" min="1" max="90" value="7" style="margin-bottom:0;width:60px;text-align:center">
+          <span style="font-size:13px;color:var(--l2)" data-i18n="lots_notif_days">jours avant</span>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" id="lot-notif-on" checked style="width:18px;height:18px;accent-color:var(--blue)">
+      </label>
+    </div>
     <div class="mo-acts">
       <button class="mo-btn mo-cancel" onclick="closeLotModal()" data-i18n="btn_cancel">Annuler</button>
       <button class="mo-btn mo-ok" style="background:var(--orange)" onclick="saveLot()" data-i18n="btn_save">Enregistrer</button>
@@ -2068,7 +2080,7 @@ var I18N = {
     lots_edit:'Modifier', lots_exp_label:"Date d'expiration", lots_qty_label:'Quantité restante',
     lots_empty:'Aucun réactif suivi', lots_empty_hint:'Ajoutez vos réactifs pour suivre leur expiration',
     lots_confirm_del:'Supprimer ce réactif ?',
-    lots_search:'Rechercher un réactif...', lots_ph_nom:'ex. BSA, NaCl, Tris...', lots_ph_num:'N° de lot', lots_ph_fournisseur:'Fournisseur', lots_ph_qty:'ex. 500 mg', lots_ph_notes:'Notes...',
+    lots_search:'Rechercher un réactif...', lots_notif_label:'Alerte expiration', lots_notif_days:'jours avant', lots_ph_nom:'ex. BSA, NaCl, Tris...', lots_ph_num:'N° de lot', lots_ph_fournisseur:'Fournisseur', lots_ph_qty:'ex. 500 mg', lots_ph_notes:'Notes...',
     tab_calc:'Calculer', tab_saved:'Recettes', tab_ab:'Anticorps', tab_conv:'Conversions',
     sl_solution:'Solution', rl_name:'Nom', rl_volume:'Volume',
     sf_vol_hint:"Volume final vise, apres ajout de tous les reactifs et complement a l'eau.",
@@ -2158,7 +2170,7 @@ var I18N = {
     lots_edit:'Edit', lots_exp_label:'Expiry date', lots_qty_label:'Remaining qty',
     lots_empty:'No reagents tracked', lots_empty_hint:'Add reagents to track their expiry',
     lots_confirm_del:'Delete this reagent?',
-    lots_search:'Search a reagent...', lots_ph_nom:'e.g. BSA, NaCl, Tris...', lots_ph_num:'Lot / batch #', lots_ph_fournisseur:'Supplier', lots_ph_qty:'e.g. 500 mg', lots_ph_notes:'Notes...',
+    lots_search:'Search a reagent...', lots_notif_label:'Expiry alert', lots_notif_days:'days before', lots_ph_nom:'e.g. BSA, NaCl, Tris...', lots_ph_num:'Lot / batch #', lots_ph_fournisseur:'Supplier', lots_ph_qty:'e.g. 500 mg', lots_ph_notes:'Notes...',
     tab_calc:'Calculate', tab_saved:'Recipes', tab_ab:'Antibodies', tab_conv:'Conversions',
     sl_solution:'Solution', rl_name:'Name', rl_volume:'Volume',
     sf_vol_hint:'Final target volume, after adding all reagents and water to volume.',
@@ -2463,6 +2475,10 @@ window.openLotModal = function(id) {
   ['nom','num','fournisseur','exp','qty','notes'].forEach(function(f) {
     document.getElementById('lot-' + f).value = '';
   });
+  var notifDaysEl = document.getElementById('lot-notif-days');
+  var notifOnEl = document.getElementById('lot-notif-on');
+  if (notifDaysEl) notifDaysEl.value = '7';
+  if (notifOnEl) notifOnEl.checked = true;
   if (lotEditId) {
     var lot = getLots().find(function(x) { return String(x.id) === lotEditId; });
     if (!lot) return;
@@ -2472,6 +2488,8 @@ window.openLotModal = function(id) {
     document.getElementById('lot-exp').value         = lot.exp         || '';
     document.getElementById('lot-qty').value         = lot.qty         || '';
     document.getElementById('lot-notes').value       = lot.notes       || '';
+    var _nd = document.getElementById('lot-notif-days'); if (_nd) _nd.value = lot.notifDays !== undefined ? lot.notifDays : 7;
+    var _no = document.getElementById('lot-notif-on'); if (_no) _no.checked = lot.notifOn !== false;
     document.getElementById('mo-lot-title').textContent = T('lots_edit') || 'Modifier';
   } else {
     document.getElementById('mo-lot-title').textContent = T('lots_add') || 'Ajouter un réactif';
@@ -2497,6 +2515,8 @@ window.saveLot = function() {
     exp:         document.getElementById('lot-exp').value,
     qty:         document.getElementById('lot-qty').value.trim(),
     notes:       document.getElementById('lot-notes').value.trim(),
+    notifDays:   parseInt(document.getElementById('lot-notif-days').value) || 7,
+    notifOn:     document.getElementById('lot-notif-on').checked,
     addedAt:     lotEditId
       ? ((lots.find(function(x) { return String(x.id) === lotEditId; }) || {}).addedAt || now)
       : now
@@ -2511,6 +2531,11 @@ window.saveLot = function() {
   closeLotModal();
   renderLots();
   toast(nom + ' ' + (T('toast_saved') || 'sauvegardé'));
+  if (document.getElementById('lot-notif-on') && document.getElementById('lot-notif-on').checked) {
+    requestNotifPermission(function(granted) {
+      if (!granted) toast('⚠️ Autorisez les notifications pour recevoir les alertes');
+    });
+  }
 };
 
 window.delLot = function(id) {
@@ -2615,8 +2640,40 @@ window.installApp = function() {
     alert(msg);
   }
 };
+
+// ─── NOTIFICATIONS EXPIRATION ─────────────────────────────────────────
+function requestNotifPermission(cb) {
+  if (!('Notification' in window)) { if(cb) cb(false); return; }
+  if (Notification.permission === 'granted') { if(cb) cb(true); return; }
+  if (Notification.permission === 'denied') { if(cb) cb(false); return; }
+  Notification.requestPermission().then(function(p) { if(cb) cb(p === 'granted'); });
+}
+
+function checkLotNotifications() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  var lots = getLots();
+  var now = new Date();
+  lots.forEach(function(lot) {
+    if (!lot.exp || lot.notifOn === false) return;
+    var expDate = new Date(lot.exp + 'T12:00:00');
+    var daysLeft = Math.ceil((expDate - now) / 86400000);
+    var threshold = lot.notifDays !== undefined ? lot.notifDays : 7;
+    if (daysLeft >= 0 && daysLeft <= threshold) {
+      var lastKey = 'notif_sent_' + lot.id + '_' + daysLeft;
+      if (localStorage.getItem(lastKey)) return;
+      localStorage.setItem(lastKey, '1');
+      var msg = daysLeft === 0
+        ? (lot.nom + ' expire aujourd\'hui !')
+        : (lot.nom + ' expire dans ' + daysLeft + ' jour' + (daysLeft > 1 ? 's' : ''));
+      new Notification('BenchMate — Stock', { body: msg, icon: '/icon-192.png' });
+    }
+  });
+}
+
+window.requestNotifPermission = requestNotifPermission;
+window.checkLotNotifications = checkLotNotifications;
 // ─── INIT ─────────────────────────────────────────────────────────────
-applyDark(); updProg(); updSavedBadge(); updAbBadge(); checkUrlRecipe(); applyI18n(); initAuth();
+applyDark(); updProg(); updSavedBadge(); updAbBadge(); checkUrlRecipe(); applyI18n(); initAuth(); checkLotNotifications();
 // Cache le bouton si l'app est déjà installée (mode standalone)
 if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
   var _ib = document.getElementById('install-btn');
