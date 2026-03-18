@@ -258,6 +258,13 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
 /* LANG TOGGLE */
 .lang-btn { background:var(--fill); border:none; border-radius:8px; padding:5px 11px; font-family:inherit; font-size:12px; font-weight:700; color:var(--l2); cursor:pointer; letter-spacing:0.05em; flex-shrink:0; }
 .lang-btn:active { opacity:0.6; }
+.toggle-wrap { position:relative; display:inline-block; width:44px; height:26px; flex-shrink:0; }
+.toggle-wrap input { opacity:0; width:0; height:0; position:absolute; }
+.toggle-slider { position:absolute; inset:0; background:var(--l3); border-radius:26px; cursor:pointer; transition:background 0.2s; }
+.toggle-slider:before { content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+.toggle-wrap input:checked + .toggle-slider { background:var(--blue); }
+.toggle-wrap input:checked + .toggle-slider:before { transform:translateX(18px); }
+
 .install-btn { display:flex; align-items:center; gap:5px; background:var(--blue); color:#fff; border:none; border-radius:10px; padding:5px 11px; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; }
 
 /* CONVERSIONS */
@@ -362,23 +369,19 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
 
   const VAPID_KEY = "BKmpn87va9dNsQSt7GHRBjSTCB8Nc5VDYaV2k4qYOzxk05dxoIFwS2-vRodoIZVRHLcQpUgGjtkaQizwfo07ntI";
 
-  const app      = initializeApp(firebaseConfig);
-  const auth     = getAuth(app);
-  const db       = getFirestore(app);
+  const app       = initializeApp(firebaseConfig);
+  const auth      = getAuth(app);
+  const db        = getFirestore(app);
   const messaging = getMessaging(app);
 
-  // Register FCM token when user is logged in
   async function registerFCMToken(user) {
     try {
       const sw = await navigator.serviceWorker.ready;
       const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: sw });
-      if (token) {
-        await setDoc(doc(db, 'users', user.uid), { fcmToken: token }, { merge: true });
-      }
-    } catch(e) { console.warn('FCM token error:', e.message); }
+      if (token) await setDoc(doc(db, 'users', user.uid), { fcmToken: token }, { merge: true });
+    } catch(e) { console.warn('FCM token:', e.message); }
   }
 
-  // Expose to main script
   window._fb = { auth, db, signInWithPopup, signOut,
     GoogleAuthProvider, onAuthStateChanged,
     createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail,
@@ -803,7 +806,20 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
         <input class="mo-inp" id="lot-qty" placeholder="ex. 500 mg" maxlength="20" style="margin-bottom:0" data-i18n-ph="lots_ph_qty">
       </div>
     </div>
-    <input class="mo-inp" id="lot-notes" placeholder="Notes..." maxlength="120" style="margin-bottom:14px" data-i18n-ph="lots_ph_notes">
+    <input class="mo-inp" id="lot-notes" placeholder="Notes..." maxlength="120" style="margin-bottom:8px" data-i18n-ph="lots_ph_notes">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;background:var(--fill);border-radius:10px;padding:10px 12px">
+      <div style="flex:1">
+        <div style="font-size:12px;color:var(--l2);margin-bottom:4px" data-i18n="lots_notif_label">Alerte expiration</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" class="mo-inp" id="lot-notif-days" min="1" max="90" value="7" style="margin-bottom:0;width:60px;text-align:center">
+          <span style="font-size:13px;color:var(--l2)" data-i18n="lots_notif_days">jours avant</span>
+        </div>
+      </div>
+      <label class="toggle-wrap">
+        <input type="checkbox" id="lot-notif-on" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
     <div class="mo-acts">
       <button class="mo-btn mo-cancel" onclick="closeLotModal()" data-i18n="btn_cancel">Annuler</button>
       <button class="mo-btn mo-ok" style="background:var(--orange)" onclick="saveLot()" data-i18n="btn_save">Enregistrer</button>
@@ -2086,7 +2102,7 @@ var I18N = {
     lots_edit:'Modifier', lots_exp_label:"Date d'expiration", lots_qty_label:'Quantité restante',
     lots_empty:'Aucun réactif suivi', lots_empty_hint:'Ajoutez vos réactifs pour suivre leur expiration',
     lots_confirm_del:'Supprimer ce réactif ?',
-    lots_search:'Rechercher un réactif...', lots_ph_nom:'ex. BSA, NaCl, Tris...', lots_ph_num:'N° de lot', lots_ph_fournisseur:'Fournisseur', lots_ph_qty:'ex. 500 mg', lots_ph_notes:'Notes...',
+    lots_search:'Rechercher un réactif...', lots_notif_label:'Alerte expiration', lots_notif_days:'jours avant', lots_ph_nom:'ex. BSA, NaCl, Tris...', lots_ph_num:'N° de lot', lots_ph_fournisseur:'Fournisseur', lots_ph_qty:'ex. 500 mg', lots_ph_notes:'Notes...',
     tab_calc:'Calculer', tab_saved:'Recettes', tab_ab:'Anticorps', tab_conv:'Conversions',
     sl_solution:'Solution', rl_name:'Nom', rl_volume:'Volume',
     sf_vol_hint:"Volume final vise, apres ajout de tous les reactifs et complement a l'eau.",
@@ -2176,7 +2192,7 @@ var I18N = {
     lots_edit:'Edit', lots_exp_label:'Expiry date', lots_qty_label:'Remaining qty',
     lots_empty:'No reagents tracked', lots_empty_hint:'Add reagents to track their expiry',
     lots_confirm_del:'Delete this reagent?',
-    lots_search:'Search a reagent...', lots_ph_nom:'e.g. BSA, NaCl, Tris...', lots_ph_num:'Lot / batch #', lots_ph_fournisseur:'Supplier', lots_ph_qty:'e.g. 500 mg', lots_ph_notes:'Notes...',
+    lots_search:'Search a reagent...', lots_notif_label:'Expiry alert', lots_notif_days:'days before', lots_ph_nom:'e.g. BSA, NaCl, Tris...', lots_ph_num:'Lot / batch #', lots_ph_fournisseur:'Supplier', lots_ph_qty:'e.g. 500 mg', lots_ph_notes:'Notes...',
     tab_calc:'Calculate', tab_saved:'Recipes', tab_ab:'Antibodies', tab_conv:'Conversions',
     sl_solution:'Solution', rl_name:'Name', rl_volume:'Volume',
     sf_vol_hint:'Final target volume, after adding all reagents and water to volume.',
@@ -2479,8 +2495,10 @@ function lotBadge(expStr) {
 window.openLotModal = function(id) {
   lotEditId = id ? String(id) : null;
   ['nom','num','fournisseur','exp','qty','notes'].forEach(function(f) {
-    document.getElementById('lot-' + f).value = '';
+    var el = document.getElementById('lot-' + f); if(el) el.value = '';
   });
+  var _nd = document.getElementById('lot-notif-days'); if(_nd) _nd.value = '7';
+  var _no = document.getElementById('lot-notif-on'); if(_no) _no.checked = true;
   if (lotEditId) {
     var lot = getLots().find(function(x) { return String(x.id) === lotEditId; });
     if (!lot) return;
@@ -2489,7 +2507,9 @@ window.openLotModal = function(id) {
     document.getElementById('lot-fournisseur').value = lot.fournisseur || '';
     document.getElementById('lot-exp').value         = lot.exp         || '';
     document.getElementById('lot-qty').value         = lot.qty         || '';
-    document.getElementById('lot-notes').value       = lot.notes       || '';
+    document.getElementById('lot-notes').value = lot.notes || '';
+    var _nd2 = document.getElementById('lot-notif-days'); if(_nd2) _nd2.value = lot.notifDays !== undefined ? lot.notifDays : 7;
+    var _no2 = document.getElementById('lot-notif-on'); if(_no2) _no2.checked = lot.notifOn !== false;
     document.getElementById('mo-lot-title').textContent = T('lots_edit') || 'Modifier';
   } else {
     document.getElementById('mo-lot-title').textContent = T('lots_add') || 'Ajouter un réactif';
@@ -2515,6 +2535,8 @@ window.saveLot = function() {
     exp:         document.getElementById('lot-exp').value,
     qty:         document.getElementById('lot-qty').value.trim(),
     notes:       document.getElementById('lot-notes').value.trim(),
+    notifDays:   parseInt(document.getElementById('lot-notif-days').value) || 7,
+    notifOn:     document.getElementById('lot-notif-on').checked,
     addedAt:     lotEditId
       ? ((lots.find(function(x) { return String(x.id) === lotEditId; }) || {}).addedAt || now)
       : now
@@ -2529,6 +2551,11 @@ window.saveLot = function() {
   closeLotModal();
   renderLots();
   toast(nom + ' ' + (T('toast_saved') || 'sauvegardé'));
+  if (document.getElementById('lot-notif-on') && document.getElementById('lot-notif-on').checked) {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
 };
 
 window.delLot = function(id) {
