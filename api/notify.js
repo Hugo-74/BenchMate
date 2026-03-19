@@ -1,14 +1,17 @@
-// api/notify.js — Vercel Serverless Function + Cron daily
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
 
 if (!getApps().length) {
+  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '')
+    .replace(/\\n/g, '\n')
+    .replace(/^"|"$/g, ''); // retire les guillemets si présents
+
   initializeApp({
     credential: cert({
       projectId:   process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey:  process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      privateKey,
     })
   });
 }
@@ -32,7 +35,7 @@ export default async function handler(req, res) {
       if (!fcmToken || !lots.length) continue;
       for (const lot of lots) {
         if (!lot.exp || lot.notifOn === false) continue;
-        const today  = new Date(); today.setHours(0,0,0,0);
+        const today   = new Date(); today.setHours(0,0,0,0);
         const expDate = new Date(lot.exp + 'T00:00:00'); expDate.setHours(0,0,0,0);
         const daysLeft = Math.round((expDate - today) / 86400000);
         const threshold = lot.notifDays !== undefined ? lot.notifDays : 7;
