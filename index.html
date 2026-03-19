@@ -2665,6 +2665,10 @@ window.installApp = function() {
 };
 // ─── INIT ─────────────────────────────────────────────────────────────
 applyDark(); updProg(); updSavedBadge(); updAbBadge(); checkUrlRecipe(); applyI18n(); initAuth();
+
+// Rafraichit les badges de lots toutes les minutes et au retour sur l'app
+setInterval(function() { if (document.getElementById('page-lots').classList.contains('active')) renderLots(); }, 60000);
+document.addEventListener('visibilitychange', function() { if (!document.hidden) renderLots(); });
 (function() { var h = window.location.hash.replace('#',''); if (['calc','saved','ab','dil','lots','conv'].indexOf(h) !== -1) switchTab(h); })();
 // Cache le bouton si l'app est déjà installée (mode standalone)
 if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
