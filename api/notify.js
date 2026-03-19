@@ -1,7 +1,7 @@
 // api/notify.js — Vercel Serverless Function + Cron daily
-const { initializeApp, cert, getApps } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-const { getMessaging } = require('firebase-admin/messaging');
+import { initializeApp, cert, getApps } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getMessaging } from 'firebase-admin/messaging';
 
 if (!getApps().length) {
   initializeApp({
@@ -32,8 +32,9 @@ export default async function handler(req, res) {
       if (!fcmToken || !lots.length) continue;
       for (const lot of lots) {
         if (!lot.exp || lot.notifOn === false) continue;
-        const expDate  = new Date(lot.exp + 'T12:00:00');
-        const daysLeft = Math.ceil((expDate - now) / 86400000);
+        const today  = new Date(); today.setHours(0,0,0,0);
+        const expDate = new Date(lot.exp + 'T00:00:00'); expDate.setHours(0,0,0,0);
+        const daysLeft = Math.round((expDate - today) / 86400000);
         const threshold = lot.notifDays !== undefined ? lot.notifDays : 7;
         if (daysLeft < 0 || daysLeft > threshold) continue;
         const sentRef = db.collection('notif_sent').doc(userDoc.id + '_' + lot.id + '_' + daysLeft);
@@ -44,7 +45,7 @@ export default async function handler(req, res) {
         try {
           await fcm.send({
             token: fcmToken,
-            notification: { title: 'BenchMate \u2014 Stock', body },
+            notification: { title: 'BenchMate — Stock', body },
             webpush: {
               notification: { icon: '/icon-192.png' },
               fcmOptions: { link: 'https://bench-mate-one.vercel.app/#lots' }
@@ -57,6 +58,7 @@ export default async function handler(req, res) {
     }
     return res.status(200).json({ ok: true, sent });
   } catch(e) {
+    console.error(e);
     return res.status(500).json({ error: e.message });
   }
 }
