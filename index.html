@@ -2482,7 +2482,10 @@ function setLots(a) {
 
 function lotStatus(expStr) {
   if (!expStr) return 'none';
-  var days = Math.ceil((new Date(expStr + 'T12:00:00') - new Date()) / 86400000);
+  // Comparer uniquement les dates (sans heure)
+  var today = new Date(); today.setHours(0,0,0,0);
+  var exp   = new Date(expStr + 'T00:00:00'); exp.setHours(0,0,0,0);
+  var days  = Math.round((exp - today) / 86400000);
   if (days < 0)  return 'exp';
   if (days < 30) return 'warn';
   return 'ok';
@@ -2491,7 +2494,9 @@ function lotStatus(expStr) {
 function lotBadge(expStr) {
   var s = lotStatus(expStr);
   if (s === 'none') return '';
-  var days = Math.ceil((new Date(expStr + 'T12:00:00') - new Date()) / 86400000);
+  var today = new Date(); today.setHours(0,0,0,0);
+  var exp   = new Date(expStr + 'T00:00:00'); exp.setHours(0,0,0,0);
+  var days  = Math.round((exp - today) / 86400000);
   var txt  = s === 'ok' ? '✓ OK' : s === 'warn' ? '⚠ ' + days + 'j' : '✗ Expiré';
   if (LANG === 'en') txt = s === 'ok' ? '✓ OK' : s === 'warn' ? '⚠ ' + days + 'd' : '✗ Expired';
   return '<span class="lot-badge lot-' + s + '">' + txt + '</span>';
