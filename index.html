@@ -1265,6 +1265,7 @@ function syncFromCloud() {
         var data = snap.data();
         var hasData = data.recipes || data.antibodies || data.lots;
         if (hasData) {
+          // Cloud a des données → elles écrasent le local
           localStorage.removeItem('buf_rec');
           localStorage.removeItem('buf_abs');
           localStorage.removeItem('buf_lots');
@@ -1272,20 +1273,21 @@ function syncFromCloud() {
           if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
           if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
           toast('☁️ ' + (T('auth_synced_on_login')||'Données synchronisées'));
-        } else {
-          pushToCloud();
         }
-      } else {
-        pushToCloud();
+        // Si cloud vide → on ne touche pas au local et on ne push pas
+        // (données locales appartiennent à la session non connectée)
       }
+      // Si document inexistant → idem, on ne push pas les données locales
       updSavedBadge(); updAbBadge();
       renderAuthNav();
       renderLots();
+      renderSaved && renderSaved();
+      renderAb && renderAb();
     });
   });
 }
 
-// Auto-push on save/delete
+// Auto-push on save/delete — seulement si connecté AU MOMENT de la sauvegarde
 var _origSetSaved = setSaved;
 setSaved = function(a) {
   _origSetSaved(a);
@@ -1294,6 +1296,11 @@ setSaved = function(a) {
 var _origSetAbs = setAbs;
 setAbs = function(a) {
   _origSetAbs(a);
+  if (fbUser) pushToCloud();
+};
+var _origSetLots = setLots;
+setLots = function(a) {
+  _origSetLots(a);
   if (fbUser) pushToCloud();
 };
 
