@@ -391,7 +391,7 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
 
 <div class="nav">
   <div class="nav-inner">
-    <div style="display:flex;align-items:center;gap:6px"><span class="nav-badge">Lab</span><button class="install-btn" id="install-btn" onclick="installApp()">⬇ Installer</button><button class="lang-btn" id="dark-btn" onclick="toggleDark()" title="Dark mode">☀️</button></div>
+    <div style="display:flex;align-items:center;gap:6px"><span class="nav-badge">Lab</span><span id="pro-badge" style="display:none;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px">Pro</span><button class="install-btn" id="install-btn" onclick="installApp()">⬇ Installer</button><button class="lang-btn" id="dark-btn" onclick="toggleDark()" title="Dark mode">☀️</button></div>
     <div style="text-align:center">
       <div class="nav-title">BenchMate</div>
       <div class="nav-step" id="nav-step" style="font-size:11px;margin-top:1px">0 reactif</div>
@@ -1153,6 +1153,14 @@ function initAuth() {
       if (user) {
         syncFromCloud();
         if (window._fb.registerFCMToken) window._fb.registerFCMToken(user);
+        // Load pro status
+        waitFb(function(fb) {
+          fb.getDoc(fb.doc(fb.db, 'users', user.uid)).then(function(snap) {
+            if (snap.exists() && snap.data().pro) { userPlan = 'pro'; updateProBadge(); }
+          });
+        });
+      } else {
+        userPlan = 'free'; updateProBadge();
       }
     });
   });
@@ -1242,7 +1250,7 @@ window.syncNow = function() {
 };
 
 function pushToCloud(cb) {
-  if (!fbUser) { if(cb) cb(); return; }
+  if (!fbUser || !isPro()) { if(cb) cb(); return; }
   waitFb(function(fb) {
     var saved = getSaved();
     var abs   = getAbs();
@@ -1257,29 +1265,30 @@ function pushToCloud(cb) {
 }
 
 function syncFromCloud() {
-  if (!fbUser) return;
-  // Vider le local AVANT de sync pour éviter que des données hors-connexion remontent
-  localStorage.removeItem('buf_rec');
-  localStorage.removeItem('buf_abs');
-  localStorage.removeItem('buf_lots');
+  if (!fbUser || !isPro()) return;
   waitFb(function(fb) {
     var ref = fb.doc(fb.db, 'users', fbUser.uid);
     fb.getDoc(ref).then(function(snap) {
       if (snap.exists()) {
         var data = snap.data();
-        if (data.recipes)    { try { localStorage.setItem('buf_rec', data.recipes); } catch(e){} }
-        if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
-        if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
-        if (data.recipes || data.antibodies || data.lots) {
+        var hasData = data.recipes || data.antibodies || data.lots;
+        if (hasData) {
+          localStorage.removeItem('buf_rec');
+          localStorage.removeItem('buf_abs');
+          localStorage.removeItem('buf_lots');
+          if (data.recipes)    { try { localStorage.setItem('buf_rec', data.recipes); } catch(e){} }
+          if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
+          if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
           toast('☁️ ' + (T('auth_synced_on_login')||'Données synchronisées'));
+        } else {
+          pushToCloud();
         }
+      } else {
+        pushToCloud();
       }
-      // Jamais de push depuis le local vers le cloud à la connexion
       updSavedBadge(); updAbBadge();
       renderAuthNav();
       renderLots();
-      renderSaved && renderSaved();
-      renderAb && renderAb();
     });
   });
 }
@@ -1293,11 +1302,6 @@ setSaved = function(a) {
 var _origSetAbs = setAbs;
 setAbs = function(a) {
   _origSetAbs(a);
-  if (fbUser) pushToCloud();
-};
-var _origSetLots = setLots;
-setLots = function(a) {
-  _origSetLots(a);
   if (fbUser) pushToCloud();
 };
 
@@ -1661,6 +1665,7 @@ function updSavedBadge() {
 
 window.openSaveModal = function() {
   if (!curRec) { toast(T('err_calc_first_recipe')); return; }
+  if (!checkLimit('recipe')) return;
   document.getElementById('mo-save-nom').value = curRec.nom;
   document.getElementById('mo-save').classList.add('show');
   setTimeout(function(){ document.getElementById('mo-save-nom').focus(); }, 350);
@@ -1917,6 +1922,7 @@ window.openAbModal = function(id) {
 window.closeAbModal = function() { document.getElementById('mo-ab').classList.remove('show'); };
 
 window.saveAb = function() {
+  if (!abEditId && !checkLimit('ab')) return;
   var nom = document.getElementById('abf-nom').value.trim();
   if (!nom) { document.getElementById('abf-nom').focus(); return; }
   var abs = getAbs();
@@ -2140,7 +2146,7 @@ var I18N = {
     err_calc_first:'Calculez d abord une dilution', err_calc_first_recipe:'Calculez d abord une recette',
     toast_recalc:'Recette recalculee pour', toast_calc_done:'Recette calculee',
     toast_reset:'Formulaire reinitialise', toast_recipe_deleted:'Recette supprimee',
-    toast_all_cleared:'Tout efface', toast_ab_deleted:'Anticorps supprime', toast_lot_deleted:'Reactif supprime',
+    toast_all_cleared:'Tout efface', toast_ab_deleted:'Anticorps supprime',
     toast_stock_updated:'Stock mis a jour', toast_link_copied:'Lien copie !',
     toast_shared_loaded:'Recette partagee chargee !', remaining:'restants',
     modified:'Modifie', added:'Ajoute', copied:'Copie !', btn_copy_txt:'Copier', toast_saved:'sauvegardee', loaded:'chargee', types:'types', type:'type', err_mw_needed:'MW requis pour cette unite', err_target_gte_stock:'cible >= stock !', ab_vol_diluent:'Volume diluant a ajouter',
@@ -2230,7 +2236,7 @@ var I18N = {
     err_calc_first:'Calculate a dilution first', err_calc_first_recipe:'Calculate a recipe first',
     toast_recalc:'Recipe recalculated for', toast_calc_done:'Recipe calculated',
     toast_reset:'Form reset', toast_recipe_deleted:'Recipe deleted',
-    toast_all_cleared:'All cleared', toast_ab_deleted:'Antibody deleted', toast_lot_deleted:'Reagent deleted',
+    toast_all_cleared:'All cleared', toast_ab_deleted:'Antibody deleted',
     toast_stock_updated:'Stock updated', toast_link_copied:'Link copied!',
     toast_shared_loaded:'Shared recipe loaded!', remaining:'remaining',
     modified:'Edited', added:'Added', copied:'Copied!', btn_copy_txt:'Copy', toast_saved:'saved', loaded:'loaded', types:'types', type:'type', err_mw_needed:'MW required for this unit', err_target_gte_stock:'target >= stock!', ab_vol_diluent:'Diluent volume to add',
@@ -2539,6 +2545,7 @@ window.closeLotModal = function() {
 window.saveLot = function() {
   var nom = document.getElementById('lot-nom').value.trim();
   if (!nom) { document.getElementById('lot-nom').focus(); return; }
+  if (!lotEditId && !checkLimit('lot')) return;
   var lots = getLots();
   var now  = Date.now();
   var entry = {
@@ -2574,7 +2581,7 @@ window.delLot = function(id) {
   if (!confirm(T('lots_confirm_del') || 'Supprimer ce réactif ?')) return;
   setLots(getLots().filter(function(x) { return String(x.id) !== String(id); }));
   renderLots();
-  toast(T('toast_lot_deleted') || 'Réactif supprimé');
+  toast(T('toast_recipe_deleted') || 'Supprimé');
 };
 
 function renderLots() {
@@ -2672,8 +2679,82 @@ window.installApp = function() {
     alert(msg);
   }
 };
+
+// ─── PLAN & LIMITES ───────────────────────────────────────────────────
+var userPlan = 'free'; // 'free' ou 'pro'
+var FREE_MAX_RECIPES = 3;
+var FREE_MAX_ABS     = 5;
+var FREE_MAX_LOTS    = 3;
+
+function isPro() { return userPlan === 'pro'; }
+function updateProBadge() {
+  var badge = document.getElementById('pro-badge');
+  if (!badge) return;
+  if (isPro()) {
+    badge.textContent = 'Pro';
+    badge.style.display = 'inline';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function checkLimit(type) {
+  if (isPro()) return true;
+  if (type === 'recipe' && getSaved().length >= FREE_MAX_RECIPES) {
+    showUpgradeModal(LANG === 'en'
+      ? 'Free plan limited to 3 recipes. Upgrade to Pro for unlimited access.'
+      : 'Plan gratuit limité à 3 recettes. Passez en Pro pour un accès illimité.');
+    return false;
+  }
+  if (type === 'ab' && getAbs().length >= FREE_MAX_ABS) {
+    showUpgradeModal(LANG === 'en'
+      ? 'Free plan limited to 5 antibodies. Upgrade to Pro for unlimited access.'
+      : 'Plan gratuit limité à 5 anticorps. Passez en Pro pour un accès illimité.');
+    return false;
+  }
+  if (type === 'lot' && getLots().length >= FREE_MAX_LOTS) {
+    showUpgradeModal(LANG === 'en'
+      ? 'Free plan limited to 3 reagent lots. Upgrade to Pro for unlimited access.'
+      : 'Plan gratuit limité à 3 lots. Passez en Pro pour un accès illimité.');
+    return false;
+  }
+  return true;
+}
+
+function showUpgradeModal(msg) {
+  var el = document.getElementById('mo-upgrade');
+  if (el) {
+    document.getElementById('mo-upgrade-msg').textContent = msg;
+    el.classList.add('show');
+  }
+}
+window.closeUpgradeModal = function() {
+  document.getElementById('mo-upgrade').classList.remove('show');
+};
+window.goCheckout = function(plan) {
+  if (!fbUser) { toast(LANG === 'en' ? 'Please sign in first' : 'Connectez-vous d\'abord'); return; }
+  fetch('/api/create-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan: plan, uid: fbUser.uid, email: fbUser.email })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.url) window.location.href = data.url;
+    else toast('Erreur: ' + (data.error || 'unknown'));
+  })
+  .catch(function(e) { toast('Erreur: ' + e.message); });
+};
 // ─── INIT ─────────────────────────────────────────────────────────────
 applyDark(); updProg(); updSavedBadge(); updAbBadge(); checkUrlRecipe(); applyI18n(); initAuth();
+// Check Stripe success
+(function() {
+  var p = new URLSearchParams(window.location.search);
+  if (p.get('pro') === 'success') {
+    setTimeout(function() { toast(LANG === 'en' ? '🎉 Welcome to BenchMate Pro!' : '🎉 Bienvenue sur BenchMate Pro !'); }, 1000);
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
 
 // Rafraichit les badges de lots toutes les minutes et au retour sur l'app
 setInterval(function() { if (document.getElementById('page-lots').classList.contains('active')) renderLots(); }, 60000);
@@ -2694,5 +2775,24 @@ if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.
     });
   }
 </script>
+
+<!-- MODAL UPGRADE -->
+<div class="mo" id="mo-upgrade" onclick="if(event.target===this)closeUpgradeModal()">
+  <div class="mo-box" style="text-align:center">
+    <div class="mo-handle"></div>
+    <div style="font-size:40px;margin-bottom:8px">⚗️</div>
+    <div class="mo-title" style="margin-bottom:8px">BenchMate Pro</div>
+    <p id="mo-upgrade-msg" style="font-size:14px;color:var(--l2);margin-bottom:20px;line-height:1.5"></p>
+    <div style="display:grid;gap:10px;margin-bottom:12px">
+      <button class="mo-btn mo-ok" style="background:var(--blue)" onclick="goCheckout('monthly')">
+        4€ / mois
+      </button>
+      <button class="mo-btn mo-ok" style="background:var(--purple)" onclick="goCheckout('yearly')">
+        36€ / an <span style="font-size:11px;opacity:0.8">(- 25%)</span>
+      </button>
+    </div>
+    <button class="mo-btn mo-cancel" onclick="closeUpgradeModal()" data-i18n="btn_cancel">Annuler</button>
+  </div>
+</div>
 </body>
 </html>
