@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "app.vercel.bench_mate_one.twa",
-        "sha256_cert_fingerprints": ["B1:26:A9:72:F6:84:1F:38:29:70:2A:A3:61:51:BC:A8:1F:C0:E6:35:C4:1F:BB:0D:5F:CA:06:37:93:F8:DD:BA"]
-      }
-    }]
