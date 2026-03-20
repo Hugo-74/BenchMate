@@ -384,7 +384,7 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
   window._fb = { auth, db, signInWithPopup, signOut,
     GoogleAuthProvider, onAuthStateChanged,
     createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail,
-    doc, setDoc, getDoc, collection, getDocs, deleteDoc, registerFCMToken };
+    doc, setDoc, getDoc, collection, getDocs, deleteDoc, onSnapshot, registerFCMToken };
 </script>
 </head>
 <body>
@@ -778,7 +778,6 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
           <span style="font-size:12px;background:rgba(175,82,222,0.1);color:var(--purple);padding:3px 9px;border-radius:8px;font-weight:600" id="auth-prof-abs"></span>
         </div>
       </div>
-      <button class="mo-btn mo-ok" style="width:100%;background:var(--blue);margin-bottom:10px" onclick="syncNow()">☁️ <span data-i18n="auth_sync_now">Synchroniser maintenant</span></button>
       <button class="mo-btn mo-cancel" style="width:100%;color:var(--red)" onclick="doSignOut()">↩️ <span data-i18n="auth_signout">Se déconnecter</span></button>
     </div>
   </div>
@@ -1145,6 +1144,7 @@ function waitFb(cb) {
 }
 
 var _unsubscribeSync = null;
+var _lastPushTime = 0;
 
 function initAuth() {
   waitFb(function(fb) {
@@ -1153,28 +1153,35 @@ function initAuth() {
       fbReady = true;
       renderAuthNav();
 
-      // Annuler l'écouteur précédent si existant
       if (_unsubscribeSync) { _unsubscribeSync(); _unsubscribeSync = null; }
 
       if (user) {
-        syncFromCloud();
         if (window._fb.registerFCMToken) window._fb.registerFCMToken(user);
 
-        // Écoute en temps réel les changements Firestore → sync auto multi-appareils
         var ref = fb.doc(fb.db, 'users', user.uid);
+        var firstSnap = true;
+
         _unsubscribeSync = fb.onSnapshot(ref, function(snap) {
+          // Ignorer les mises à jour dans les 3s après un push local
+          if (!firstSnap && Date.now() - _lastPushTime < 3000) { firstSnap = false; return; }
+          firstSnap = false;
+
           if (!snap.exists()) return;
           var data = snap.data();
-          // Ne pas écraser si on vient de push nous-mêmes (évite boucle)
-          if (data._localPush) return;
+
+          localStorage.removeItem('buf_rec');
+          localStorage.removeItem('buf_abs');
+          localStorage.removeItem('buf_lots');
           if (data.recipes)    { try { localStorage.setItem('buf_rec', data.recipes); } catch(e){} }
           if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
           if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
-          if (data.pro) { userPlan = 'pro'; updateProBadge(); }
+          if (data.pro) { userPlan = 'pro'; } else { userPlan = 'free'; }
+          updateProBadge();
           updSavedBadge(); updAbBadge();
           renderSaved && renderSaved();
           renderAb && renderAb();
           renderLots && renderLots();
+          renderAuthNav();
         });
       } else {
         userPlan = 'free'; updateProBadge();
@@ -1268,13 +1275,12 @@ window.syncNow = function() {
 
 function pushToCloud(cb) {
   if (!fbUser) { if(cb) cb(); return; }
+  _lastPushTime = Date.now();
   waitFb(function(fb) {
-    var saved = getSaved();
-    var abs   = getAbs();
     var ref = fb.doc(fb.db, 'users', fbUser.uid);
     fb.setDoc(ref, {
-      recipes:    JSON.stringify(saved),
-      antibodies: JSON.stringify(abs),
+      recipes:    JSON.stringify(getSaved()),
+      antibodies: JSON.stringify(getAbs()),
       lots:       JSON.stringify(getLots()),
       updatedAt:  Date.now()
     }, { merge: true }).then(function(){ if(cb) cb(); });
@@ -1286,25 +1292,26 @@ function syncFromCloud() {
   waitFb(function(fb) {
     var ref = fb.doc(fb.db, 'users', fbUser.uid);
     fb.getDoc(ref).then(function(snap) {
-      // Toujours vider le local et charger depuis le cloud
-      localStorage.removeItem('buf_rec');
-      localStorage.removeItem('buf_abs');
-      localStorage.removeItem('buf_lots');
       if (snap.exists()) {
         var data = snap.data();
-        if (data.recipes)    { try { localStorage.setItem('buf_rec', data.recipes); } catch(e){} }
-        if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
-        if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
-        if (data.pro) { userPlan = 'pro'; updateProBadge(); }
-        if (data.recipes || data.antibodies || data.lots) {
+        var hasData = data.recipes || data.antibodies || data.lots;
+        if (hasData) {
+          localStorage.removeItem('buf_rec');
+          localStorage.removeItem('buf_abs');
+          localStorage.removeItem('buf_lots');
+          if (data.recipes)    { try { localStorage.setItem('buf_rec', data.recipes); } catch(e){} }
+          if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
+          if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
           toast('☁️ ' + (T('auth_synced_on_login')||'Données synchronisées'));
+        } else {
+          pushToCloud();
         }
+      } else {
+        pushToCloud();
       }
       updSavedBadge(); updAbBadge();
       renderAuthNav();
       renderLots();
-      renderSaved && renderSaved();
-      renderAb && renderAb();
     });
   });
 }
@@ -1318,11 +1325,6 @@ setSaved = function(a) {
 var _origSetAbs = setAbs;
 setAbs = function(a) {
   _origSetAbs(a);
-  if (fbUser) pushToCloud();
-};
-var _origSetLots = setLots;
-setLots = function(a) {
-  _origSetLots(a);
   if (fbUser) pushToCloud();
 };
 
