@@ -353,7 +353,7 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
   import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, onAuthStateChanged,
     createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail }
     from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc }
+  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, onSnapshot }
     from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
   import { getMessaging, getToken }
     from "https://www.gstatic.com/firebasejs/12.10.0/firebase-messaging.js";
@@ -1144,20 +1144,37 @@ function waitFb(cb) {
   else { setTimeout(function(){ waitFb(cb); }, 100); }
 }
 
+var _unsubscribeSync = null;
+
 function initAuth() {
   waitFb(function(fb) {
     fb.onAuthStateChanged(fb.auth, function(user) {
       fbUser = user;
       fbReady = true;
       renderAuthNav();
+
+      // Annuler l'écouteur précédent si existant
+      if (_unsubscribeSync) { _unsubscribeSync(); _unsubscribeSync = null; }
+
       if (user) {
         syncFromCloud();
         if (window._fb.registerFCMToken) window._fb.registerFCMToken(user);
-        // Load pro status
-        waitFb(function(fb) {
-          fb.getDoc(fb.doc(fb.db, 'users', user.uid)).then(function(snap) {
-            if (snap.exists() && snap.data().pro) { userPlan = 'pro'; updateProBadge(); }
-          });
+
+        // Écoute en temps réel les changements Firestore → sync auto multi-appareils
+        var ref = fb.doc(fb.db, 'users', user.uid);
+        _unsubscribeSync = fb.onSnapshot(ref, function(snap) {
+          if (!snap.exists()) return;
+          var data = snap.data();
+          // Ne pas écraser si on vient de push nous-mêmes (évite boucle)
+          if (data._localPush) return;
+          if (data.recipes)    { try { localStorage.setItem('buf_rec', data.recipes); } catch(e){} }
+          if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
+          if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
+          if (data.pro) { userPlan = 'pro'; updateProBadge(); }
+          updSavedBadge(); updAbBadge();
+          renderSaved && renderSaved();
+          renderAb && renderAb();
+          renderLots && renderLots();
         });
       } else {
         userPlan = 'free'; updateProBadge();
@@ -1250,7 +1267,7 @@ window.syncNow = function() {
 };
 
 function pushToCloud(cb) {
-  if (!fbUser || !isPro()) { if(cb) cb(); return; }
+  if (!fbUser) { if(cb) cb(); return; }
   waitFb(function(fb) {
     var saved = getSaved();
     var abs   = getAbs();
@@ -1265,30 +1282,29 @@ function pushToCloud(cb) {
 }
 
 function syncFromCloud() {
-  if (!fbUser || !isPro()) return;
+  if (!fbUser) return;
   waitFb(function(fb) {
     var ref = fb.doc(fb.db, 'users', fbUser.uid);
     fb.getDoc(ref).then(function(snap) {
+      // Toujours vider le local et charger depuis le cloud
+      localStorage.removeItem('buf_rec');
+      localStorage.removeItem('buf_abs');
+      localStorage.removeItem('buf_lots');
       if (snap.exists()) {
         var data = snap.data();
-        var hasData = data.recipes || data.antibodies || data.lots;
-        if (hasData) {
-          localStorage.removeItem('buf_rec');
-          localStorage.removeItem('buf_abs');
-          localStorage.removeItem('buf_lots');
-          if (data.recipes)    { try { localStorage.setItem('buf_rec', data.recipes); } catch(e){} }
-          if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
-          if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
+        if (data.recipes)    { try { localStorage.setItem('buf_rec', data.recipes); } catch(e){} }
+        if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
+        if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
+        if (data.pro) { userPlan = 'pro'; updateProBadge(); }
+        if (data.recipes || data.antibodies || data.lots) {
           toast('☁️ ' + (T('auth_synced_on_login')||'Données synchronisées'));
-        } else {
-          pushToCloud();
         }
-      } else {
-        pushToCloud();
       }
       updSavedBadge(); updAbBadge();
       renderAuthNav();
       renderLots();
+      renderSaved && renderSaved();
+      renderAb && renderAb();
     });
   });
 }
@@ -1302,6 +1318,11 @@ setSaved = function(a) {
 var _origSetAbs = setAbs;
 setAbs = function(a) {
   _origSetAbs(a);
+  if (fbUser) pushToCloud();
+};
+var _origSetLots = setLots;
+setLots = function(a) {
+  _origSetLots(a);
   if (fbUser) pushToCloud();
 };
 
