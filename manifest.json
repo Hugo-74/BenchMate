@@ -1,21 +1,35 @@
 {
   "name": "BenchMate",
   "short_name": "BenchMate",
-  "start_url": "./index.html",
+  "description": "Calculateur et carnet de labo pour réactifs et anticorps.",
+  "start_url": "/",
+  "scope": "/",
+  "id": "benchmate-lab-app",
   "display": "standalone",
+  "orientation": "portrait",
+  "lang": "fr",
+  "dir": "ltr",
   "background_color": "#f2f2f7",
   "theme_color": "#007aff",
-  "description": "Calculateur et carnet de labo pour réactifs et anticorps.",
+  "categories": ["productivity", "medical", "education"],
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
