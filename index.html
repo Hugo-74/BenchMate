@@ -1258,26 +1258,23 @@ function pushToCloud(cb) {
 
 function syncFromCloud() {
   if (!fbUser) return;
+  // Vider le local AVANT de sync pour éviter que des données hors-connexion remontent
+  localStorage.removeItem('buf_rec');
+  localStorage.removeItem('buf_abs');
+  localStorage.removeItem('buf_lots');
   waitFb(function(fb) {
     var ref = fb.doc(fb.db, 'users', fbUser.uid);
     fb.getDoc(ref).then(function(snap) {
       if (snap.exists()) {
         var data = snap.data();
-        var hasData = data.recipes || data.antibodies || data.lots;
-        if (hasData) {
-          // Cloud a des données → elles écrasent le local
-          localStorage.removeItem('buf_rec');
-          localStorage.removeItem('buf_abs');
-          localStorage.removeItem('buf_lots');
-          if (data.recipes)    { try { localStorage.setItem('buf_rec', data.recipes); } catch(e){} }
-          if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
-          if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
+        if (data.recipes)    { try { localStorage.setItem('buf_rec', data.recipes); } catch(e){} }
+        if (data.antibodies) { try { localStorage.setItem('buf_abs', data.antibodies); } catch(e){} }
+        if (data.lots)       { try { localStorage.setItem('buf_lots', data.lots); } catch(e){} }
+        if (data.recipes || data.antibodies || data.lots) {
           toast('☁️ ' + (T('auth_synced_on_login')||'Données synchronisées'));
         }
-        // Si cloud vide → on ne touche pas au local et on ne push pas
-        // (données locales appartiennent à la session non connectée)
       }
-      // Si document inexistant → idem, on ne push pas les données locales
+      // Jamais de push depuis le local vers le cloud à la connexion
       updSavedBadge(); updAbBadge();
       renderAuthNav();
       renderLots();
@@ -1287,7 +1284,7 @@ function syncFromCloud() {
   });
 }
 
-// Auto-push on save/delete — seulement si connecté AU MOMENT de la sauvegarde
+// Auto-push on save/delete
 var _origSetSaved = setSaved;
 setSaved = function(a) {
   _origSetSaved(a);
@@ -2143,7 +2140,7 @@ var I18N = {
     err_calc_first:'Calculez d abord une dilution', err_calc_first_recipe:'Calculez d abord une recette',
     toast_recalc:'Recette recalculee pour', toast_calc_done:'Recette calculee',
     toast_reset:'Formulaire reinitialise', toast_recipe_deleted:'Recette supprimee',
-    toast_all_cleared:'Tout efface', toast_ab_deleted:'Anticorps supprime',
+    toast_all_cleared:'Tout efface', toast_ab_deleted:'Anticorps supprime', toast_lot_deleted:'Reactif supprime',
     toast_stock_updated:'Stock mis a jour', toast_link_copied:'Lien copie !',
     toast_shared_loaded:'Recette partagee chargee !', remaining:'restants',
     modified:'Modifie', added:'Ajoute', copied:'Copie !', btn_copy_txt:'Copier', toast_saved:'sauvegardee', loaded:'chargee', types:'types', type:'type', err_mw_needed:'MW requis pour cette unite', err_target_gte_stock:'cible >= stock !', ab_vol_diluent:'Volume diluant a ajouter',
@@ -2233,7 +2230,7 @@ var I18N = {
     err_calc_first:'Calculate a dilution first', err_calc_first_recipe:'Calculate a recipe first',
     toast_recalc:'Recipe recalculated for', toast_calc_done:'Recipe calculated',
     toast_reset:'Form reset', toast_recipe_deleted:'Recipe deleted',
-    toast_all_cleared:'All cleared', toast_ab_deleted:'Antibody deleted',
+    toast_all_cleared:'All cleared', toast_ab_deleted:'Antibody deleted', toast_lot_deleted:'Reagent deleted',
     toast_stock_updated:'Stock updated', toast_link_copied:'Link copied!',
     toast_shared_loaded:'Shared recipe loaded!', remaining:'remaining',
     modified:'Edited', added:'Added', copied:'Copied!', btn_copy_txt:'Copy', toast_saved:'saved', loaded:'loaded', types:'types', type:'type', err_mw_needed:'MW required for this unit', err_target_gte_stock:'target >= stock!', ab_vol_diluent:'Diluent volume to add',
@@ -2577,7 +2574,7 @@ window.delLot = function(id) {
   if (!confirm(T('lots_confirm_del') || 'Supprimer ce réactif ?')) return;
   setLots(getLots().filter(function(x) { return String(x.id) !== String(id); }));
   renderLots();
-  toast(T('toast_recipe_deleted') || 'Supprimé');
+  toast(T('toast_lot_deleted') || 'Réactif supprimé');
 };
 
 function renderLots() {
