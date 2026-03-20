@@ -1,17 +1,24 @@
 {
   "name": "BenchMate",
   "short_name": "BenchMate",
-  "description": "Calculateur et carnet de labo pour réactifs et anticorps.",
+  "description": "Calculateur de tampons et solutions de laboratoire - gestion des stocks, anticorps et dilutions",
   "start_url": "/",
   "scope": "/",
   "id": "benchmate-lab-app",
   "display": "standalone",
   "orientation": "portrait",
-  "lang": "fr",
-  "dir": "ltr",
   "background_color": "#f2f2f7",
   "theme_color": "#007aff",
   "categories": ["productivity", "medical", "education"],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Calculateur de solutions"
+    }
+  ],
   "icons": [
     {
       "src": "icon-192.png",
@@ -23,13 +30,13 @@
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any"
     }
   ]
 }
