@@ -404,10 +404,10 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
 <div class="tab-wrap">
   <div class="tab-bar">
     <button class="tab-btn active" id="tab-calc" onclick="switchTab('calc')"><span class="ti">&#9879;&#65039;</span><span data-i18n="tab_calc">Calculer</span></button>
-    <button class="tab-btn" id="tab-saved" onclick="switchTab('saved')"><span class="ti">&#128190;</span><span data-i18n="tab_saved">Recettes</span></button>
-    <button class="tab-btn" id="tab-ab" onclick="switchTab('ab')"><span class="ti">&#128300;</span><span data-i18n="tab_ab">Anticorps</span></button>
-    <button class="tab-btn" id="tab-dil" onclick="switchTab('dil')"><span class="ti">🧪</span><span data-i18n="tab_dil">Dilutions</span></button>
+    <button class="tab-btn" id="tab-saved" onclick="switchTab('saved')"><span class="ti">&#128190;</span><span data-i18n="tab_saved">Recettes</span> <span id="saved-badge" style="display:none;background:var(--red);color:#fff;border-radius:10px;font-size:10px;padding:1px 5px;margin-left:2px"></span></button>
+    <button class="tab-btn" id="tab-ab" onclick="switchTab('ab')"><span class="ti">&#128300;</span><span data-i18n="tab_ab">Anticorps</span> <span id="ab-badge" style="display:none;background:var(--purple);color:#fff;border-radius:10px;font-size:10px;padding:1px 5px;margin-left:2px"></span></button>
     <button class="tab-btn" id="tab-lots" onclick="switchTab('lots')"><span class="ti">📦</span><span data-i18n="tab_lots">Lots</span></button>
+    <button class="tab-btn" id="tab-dil" onclick="switchTab('dil')"><span class="ti">🧪</span><span data-i18n="tab_dil">Dilutions</span></button>
     <button class="tab-btn" id="tab-conv" onclick="switchTab('conv')"><span class="ti">&#9881;&#65039;</span><span data-i18n="tab_conv">Conversions</span></button>
   </div>
 </div>
@@ -503,7 +503,6 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
     <span class="sl" data-i18n="sl_saved">Recettes sauvegardees</span>
     <button class="btn-act" style="padding:6px 12px;font-size:13px;box-shadow:none" onclick="clearAllSaved()"><span data-i18n="btn_clear_all">Tout effacer</span></button>
   </div>
-  <input class="lot-search" id="saved-search" placeholder="Rechercher une recette..." oninput="renderSaved()" data-i18n-ph="saved_search">
   <div id="saved-list"></div>
 </div>
 </div>
@@ -515,88 +514,11 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
     <span class="sl" data-i18n="sl_antibodies">Mes anticorps</span>
     <button class="btn-act" style="padding:7px 14px;font-size:13px;background:var(--purple);color:#fff;border-radius:10px;box-shadow:none" onclick="openAbModal(null)"><span data-i18n="btn_add_ab">+ Ajouter</span></button>
   </div>
-  <input class="lot-search" id="ab-search" placeholder="Rechercher un anticorps..." oninput="renderAb()" data-i18n-ph="ab_search">
   <div id="ab-list"></div>
 </div>
 </div>
 
 
-
-<!-- PAGE DILUTIONS SERIE -->
-<div class="page" id="page-dil">
-<div class="sc">
-
-  <div class="cv-card">
-    <div class="cv-hdr">
-      <div class="cv-ico" style="background:rgba(175,82,222,0.12);font-size:18px">🧪</div>
-      <div><div class="cv-ttl" data-i18n="dil_ttl">Dilution en série</div><div class="cv-sub" data-i18n="dil_sub">Anticorps, standards, IC50...</div></div>
-    </div>
-    <div class="cv-body">
-
-      <div class="cv-row">
-        <span class="cv-lbl" data-i18n="dil_stock_conc">Conc. stock</span>
-        <div style="display:flex;gap:6px;align-items:center">
-          <input type="number" class="cv-inp" id="dil-stock" placeholder="1000" min="0" step="any" oninput="calcDil()">
-          <select class="usel" id="dil-unit" onchange="calcDil()">
-            <option>µg/mL</option><option>mg/mL</option><option>g/mL</option>
-            <option>mM</option><option>µM</option><option>nM</option>
-            <option>ng/mL</option><option>U/mL</option><option selected>x</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="cv-row">
-        <span class="cv-lbl" data-i18n="dil_factor">Facteur de dilution</span>
-        <div style="display:flex;gap:6px;align-items:center">
-          <span style="color:var(--l2);font-size:15px">1 :</span>
-          <input type="number" class="cv-inp" id="dil-factor" placeholder="2" min="1.01" step="any" value="2" oninput="calcDil()">
-        </div>
-      </div>
-
-      <div class="cv-row">
-        <span class="cv-lbl" data-i18n="dil_steps">Nombre de puits / étapes</span>
-        <input type="number" class="cv-inp" id="dil-steps" placeholder="8" min="2" max="24" step="1" value="8" oninput="calcDil()">
-      </div>
-
-      <div class="cv-row">
-        <span class="cv-lbl" data-i18n="dil_vol">Volume par puits</span>
-        <div style="display:flex;gap:6px;align-items:center">
-          <input type="number" class="cv-inp" id="dil-vol" placeholder="100" min="0" step="any" value="100" oninput="calcDil()">
-          <span style="color:var(--l2);font-size:15px">µL</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Results -->
-  <div id="dil-results" style="display:none">
-
-    <!-- Visual bar chart -->
-    <div class="sh"><span class="sl" data-i18n="dil_visual">Visualisation</span></div>
-    <div class="dil-vis" id="dil-vis"></div>
-
-    <!-- Table -->
-    <div class="sh" style="margin-top:20px"><span class="sl" data-i18n="dil_protocol">Protocole</span></div>
-    <table class="dil-table" id="dil-table">
-      <thead><tr>
-        <th data-i18n="dil_th_well">Puits</th>
-        <th data-i18n="dil_th_conc">Concentration</th>
-        <th data-i18n="dil_th_sample">Volume échantillon</th>
-        <th data-i18n="dil_th_diluent">Volume diluant</th>
-      </tr></thead>
-      <tbody id="dil-tbody"></tbody>
-    </table>
-
-    <div style="margin-top:12px;display:flex;gap:10px">
-      <button class="btn-act" style="flex:1" onclick="copyDil()">&#128203; <span data-i18n="btn_copy_txt">Copier</span></button>
-      <button class="btn-act" style="flex:1" onclick="pdfDil()">&#128196; PDF</button>
-    </div>
-
-  </div>
-
-</div>
-</div>
 
 <!-- PAGE CONVERSIONS -->
 <!-- PAGE LOTS -->
@@ -1661,8 +1583,8 @@ function getSaved() { try{return JSON.parse(localStorage.getItem('buf_rec')||'[]
 function setSaved(a) { localStorage.setItem('buf_rec', JSON.stringify(a)); }
 
 function updSavedBadge() {
-  var b=document.getElementById('saved-badge');
-  if (b) { var n=getSaved().length; b.textContent=n; b.style.display = n>0 ? 'inline' : 'none'; }
+  var n=getSaved().length, b=document.getElementById('saved-badge');
+  b.textContent=n; b.style.display = n>0 ? 'inline' : 'none';
 }
 
 window.openSaveModal = function() {
@@ -1687,8 +1609,7 @@ window.saveRecette = function() {
 
 function renderSaved() {
   var list = document.getElementById('saved-list');
-  var search = ((document.getElementById('saved-search') || {}).value || '').toLowerCase();
-  var saved = getSaved().filter(function(r) { return !search || r.nom.toLowerCase().includes(search); });
+  var saved = getSaved();
   if (!saved.length) {
     list.innerHTML='<div class="empty"><div class="ei">&#128203;</div><div class="et">'+T('no_recipe')+'</div><div class="es">'+T('no_recipe_hint')+'</div></div>';
     return;
@@ -1747,8 +1668,8 @@ function getAbs() { try{return JSON.parse(localStorage.getItem('buf_abs')||'[]')
 function setAbs(a) { localStorage.setItem('buf_abs', JSON.stringify(a)); }
 
 function updAbBadge() {
-  var b=document.getElementById('ab-badge');
-  if (b) { var n=getAbs().length; b.textContent=n; b.style.display = n>0 ? 'inline' : 'none'; }
+  var n=getAbs().length, b=document.getElementById('ab-badge');
+  b.textContent=n; b.style.display = n>0 ? 'inline' : 'none';
 }
 
 window.setAbType = function(type) {
@@ -1760,8 +1681,7 @@ window.setAbType = function(type) {
 
 function renderAb() {
   var list = document.getElementById('ab-list');
-  var search = ((document.getElementById('ab-search') || {}).value || '').toLowerCase();
-  var abs  = getAbs().filter(function(ab) { return !search || (ab.nom||'').toLowerCase().includes(search) || (ab.ref||'').toLowerCase().includes(search); });
+  var abs  = getAbs();
   if (!abs.length) {
     list.innerHTML='<div class="empty"><div class="ei">&#128300;</div><div class="et">'+T('no_ab')+'</div><div class="es">'+T('no_ab_hint')+'</div></div>';
     return;
@@ -2121,7 +2041,7 @@ var I18N = {
     lots_edit:'Modifier', lots_exp_label:"Date d'expiration", lots_qty_label:'Quantité restante',
     lots_empty:'Aucun réactif suivi', lots_empty_hint:'Ajoutez vos réactifs pour suivre leur expiration',
     lots_confirm_del:'Supprimer ce réactif ?',
-    lots_search:'Rechercher un réactif...', saved_search:'Rechercher une recette...', ab_search:'Rechercher un anticorps...', lots_notif_label:'Alerte expiration', lots_notif_days:'jours avant', lots_ph_nom:'ex. BSA, NaCl, Tris...', lots_ph_num:'N° de lot', lots_ph_fournisseur:'Fournisseur', lots_ph_qty:'ex. 500 mg', lots_ph_notes:'Notes...',
+    lots_search:'Rechercher un réactif...', lots_notif_label:'Alerte expiration', lots_notif_days:'jours avant', lots_ph_nom:'ex. BSA, NaCl, Tris...', lots_ph_num:'N° de lot', lots_ph_fournisseur:'Fournisseur', lots_ph_qty:'ex. 500 mg', lots_ph_notes:'Notes...',
     tab_calc:'Calculer', tab_saved:'Recettes', tab_ab:'Anticorps', tab_conv:'Conversions',
     sl_solution:'Solution', rl_name:'Nom', rl_volume:'Volume',
     sf_vol_hint:"Volume final vise, apres ajout de tous les reactifs et complement a l'eau.",
@@ -2211,7 +2131,7 @@ var I18N = {
     lots_edit:'Edit', lots_exp_label:'Expiry date', lots_qty_label:'Remaining qty',
     lots_empty:'No reagents tracked', lots_empty_hint:'Add reagents to track their expiry',
     lots_confirm_del:'Delete this reagent?',
-    lots_search:'Search a reagent...', saved_search:'Search a recipe...', ab_search:'Search an antibody...', lots_notif_label:'Expiry alert', lots_notif_days:'days before', lots_ph_nom:'e.g. BSA, NaCl, Tris...', lots_ph_num:'Lot / batch #', lots_ph_fournisseur:'Supplier', lots_ph_qty:'e.g. 500 mg', lots_ph_notes:'Notes...',
+    lots_search:'Search a reagent...', lots_notif_label:'Expiry alert', lots_notif_days:'days before', lots_ph_nom:'e.g. BSA, NaCl, Tris...', lots_ph_num:'Lot / batch #', lots_ph_fournisseur:'Supplier', lots_ph_qty:'e.g. 500 mg', lots_ph_notes:'Notes...',
     tab_calc:'Calculate', tab_saved:'Recipes', tab_ab:'Antibodies', tab_conv:'Conversions',
     sl_solution:'Solution', rl_name:'Name', rl_volume:'Volume',
     sf_vol_hint:'Final target volume, after adding all reagents and water to volume.',
@@ -2821,3 +2741,79 @@ if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.
 </div>
 </body>
 </html>
+
+<!-- PAGE DILUTIONS SERIE -->
+<div class="page" id="page-dil">
+<div class="sc">
+
+  <div class="cv-card">
+    <div class="cv-hdr">
+      <div class="cv-ico" style="background:rgba(175,82,222,0.12);font-size:18px">🧪</div>
+      <div><div class="cv-ttl" data-i18n="dil_ttl">Dilution en série</div><div class="cv-sub" data-i18n="dil_sub">Anticorps, standards, IC50...</div></div>
+    </div>
+    <div class="cv-body">
+
+      <div class="cv-row">
+        <span class="cv-lbl" data-i18n="dil_stock_conc">Conc. stock</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="number" class="cv-inp" id="dil-stock" placeholder="1000" min="0" step="any" oninput="calcDil()">
+          <select class="usel" id="dil-unit" onchange="calcDil()">
+            <option>µg/mL</option><option>mg/mL</option><option>g/mL</option>
+            <option>mM</option><option>µM</option><option>nM</option>
+            <option>ng/mL</option><option>U/mL</option><option selected>x</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cv-row">
+        <span class="cv-lbl" data-i18n="dil_factor">Facteur de dilution</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="color:var(--l2);font-size:15px">1 :</span>
+          <input type="number" class="cv-inp" id="dil-factor" placeholder="2" min="1.01" step="any" value="2" oninput="calcDil()">
+        </div>
+      </div>
+
+      <div class="cv-row">
+        <span class="cv-lbl" data-i18n="dil_steps">Nombre de puits / étapes</span>
+        <input type="number" class="cv-inp" id="dil-steps" placeholder="8" min="2" max="24" step="1" value="8" oninput="calcDil()">
+      </div>
+
+      <div class="cv-row">
+        <span class="cv-lbl" data-i18n="dil_vol">Volume par puits</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="number" class="cv-inp" id="dil-vol" placeholder="100" min="0" step="any" value="100" oninput="calcDil()">
+          <span style="color:var(--l2);font-size:15px">µL</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="dil-results" style="display:none">
+
+    <!-- Visual bar chart -->
+    <div class="sh"><span class="sl" data-i18n="dil_visual">Visualisation</span></div>
+    <div class="dil-vis" id="dil-vis"></div>
+
+    <!-- Table -->
+    <div class="sh" style="margin-top:20px"><span class="sl" data-i18n="dil_protocol">Protocole</span></div>
+    <table class="dil-table" id="dil-table">
+      <thead><tr>
+        <th data-i18n="dil_th_well">Puits</th>
+        <th data-i18n="dil_th_conc">Concentration</th>
+        <th data-i18n="dil_th_sample">Volume échantillon</th>
+        <th data-i18n="dil_th_diluent">Volume diluant</th>
+      </tr></thead>
+      <tbody id="dil-tbody"></tbody>
+    </table>
+
+    <div style="margin-top:12px;display:flex;gap:10px">
+      <button class="btn-act" style="flex:1" onclick="copyDil()">&#128203; <span data-i18n="btn_copy_txt">Copier</span></button>
+      <button class="btn-act" style="flex:1" onclick="pdfDil()">&#128196; PDF</button>
+    </div>
+
+  </div>
+
+</div>
+</div>
