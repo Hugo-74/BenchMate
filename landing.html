@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BenchMate - <span data-fr>L'assistant de paillasse pour votre labo</span><span data-en>The lab bench assistant</span></title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #007aff;
+  --blue-dark: #0055d4;
+  --orange: #ff9500;
+  --purple: #af52de;
+  --green: #34c759;
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --text: #1d1d1f;
+  --sub: #6e6e73;
+  --border: #e5e5ea;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Figtree', sans-serif; background: var(--bg); color: var(--text); }
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(245,245,247,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 18px; color: var(--text); text-decoration: none; }
+.nav-logo span { font-size: 22px; }
+.nav-links { display: flex; align-items: center; gap: 24px; }
+.nav-links a { font-size: 14px; font-weight: 500; color: var(--sub); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  background: var(--blue); color: #fff !important;
+  padding: 8px 18px; border-radius: 100px;
+  font-weight: 600 !important; font-size: 14px !important;
+  transition: opacity 0.2s !important;
+}
+.nav-cta:hover { opacity: 0.85 !important; }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 100px 24px 60px;
+  background: linear-gradient(180deg, #fff 0%, var(--bg) 100%);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(0,122,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(0,122,255,0.1); color: var(--blue);
+  border: 1px solid rgba(0,122,255,0.2);
+  border-radius: 100px; padding: 6px 16px;
+  font-size: 13px; font-weight: 600;
+  margin-bottom: 28px;
+  animation: fadeUp 0.6s ease both;
+}
+.hero h1 {
+  font-size: clamp(40px, 7vw, 80px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: clamp(17px, 2.5vw, 22px);
+  color: var(--sub); font-weight: 400;
+  max-width: 560px; margin: 0 auto 40px;
+  line-height: 1.5;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+.hero-btns {
+  display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
+  animation: fadeUp 0.6s 0.3s ease both;
+}
+.btn-primary {
+  background: var(--blue); color: #fff;
+  padding: 14px 28px; border-radius: 100px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 16px; font-weight: 700;
+  text-decoration: none; border: none; cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+.btn-secondary {
+  background: transparent; color: var(--text);
+  padding: 14px 28px; border-radius: 100px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 16px; font-weight: 600;
+  text-decoration: none; border: 1.5px solid var(--border); cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-secondary:hover { border-color: var(--blue); transform: translateY(-2px); }
+
+/* MOCKUP */
+.mockup-wrap {
+  margin-top: 64px;
+  animation: fadeUp 0.8s 0.4s ease both;
+  position: relative;
+}
+.mockup {
+  background: linear-gradient(145deg, #1c1c1e, #2c2c2e);
+  border-radius: 40px;
+  padding: 16px;
+  max-width: 320px;
+  margin: 0 auto;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.05);
+}
+.mockup-screen {
+  background: #f2f2f7;
+  border-radius: 28px;
+  overflow: hidden;
+  aspect-ratio: 9/16;
+  display: flex; flex-direction: column;
+}
+.mockup-nav {
+  background: #fff;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid #e5e5ea;
+  text-align: center;
+}
+.mockup-nav-title { font-size: 15px; font-weight: 800; }
+.mockup-nav-sub { font-size: 10px; color: #8e8e93; margin-top: 1px; }
+.mockup-tabs {
+  background: #fff;
+  display: flex;
+  border-bottom: 1px solid #e5e5ea;
+  padding: 0 4px;
+}
+.mockup-tab {
+  flex: 1; padding: 8px 2px; text-align: center;
+  font-size: 8px; font-weight: 600; color: #8e8e93;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.mockup-tab.active { color: #007aff; border-bottom: 2px solid #007aff; }
+.mockup-tab-icon { font-size: 14px; }
+.mockup-body { flex: 1; padding: 12px; overflow: hidden; }
+.mockup-card {
+  background: #fff; border-radius: 12px;
+  padding: 12px; margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.mockup-card-title { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+.mockup-badge {
+  display: inline-block; padding: 2px 7px; border-radius: 6px;
+  font-size: 9px; font-weight: 700;
+}
+.badge-warn { background: rgba(255,149,0,0.12); color: #ff9500; }
+.badge-ok { background: rgba(52,199,89,0.12); color: #34c759; }
+.badge-exp { background: rgba(255,59,48,0.12); color: #ff3b30; }
+
+/* FEATURES */
+.section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--blue);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 900; letter-spacing: -1px;
+  margin-bottom: 16px; line-height: 1.1;
+}
+.section-sub {
+  font-size: 18px; color: var(--sub);
+  max-width: 520px; line-height: 1.5; margin-bottom: 48px;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.feature-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+.feature-icon {
+  width: 48px; height: 48px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 16px;
+}
+.feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.feature-card p { font-size: 14px; color: var(--sub); line-height: 1.6; }
+
+/* STATS */
+.stats-section {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+  padding: 64px 24px;
+  text-align: center;
+}
+.stats-grid {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 48px;
+  max-width: 700px; margin: 0 auto;
+}
+.stat-item { color: #fff; }
+.stat-num { font-size: 48px; font-weight: 900; letter-spacing: -2px; }
+.stat-label { font-size: 14px; opacity: 0.75; margin-top: 4px; font-weight: 500; }
+
+/* TESTIMONIAL */
+.testimonials { padding: 80px 24px; background: var(--card); }
+.testimonials-inner { max-width: 900px; margin: 0 auto; }
+.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 48px; }
+.testimonial-card {
+  background: var(--bg); border-radius: 16px; padding: 24px;
+  border: 1px solid var(--border);
+}
+.testimonial-stars { color: #ff9500; font-size: 14px; margin-bottom: 12px; }
+.testimonial-text { font-size: 15px; line-height: 1.6; color: var(--text); margin-bottom: 16px; font-style: italic; }
+.testimonial-author { display: flex; align-items: center; gap: 10px; }
+.testimonial-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff;
+}
+.testimonial-name { font-size: 13px; font-weight: 700; }
+.testimonial-role { font-size: 12px; color: var(--sub); }
+
+/* CTA */
+.cta-section {
+  padding: 100px 24px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--bg) 0%, #fff 100%);
+}
+.cta-section h2 { font-size: clamp(28px, 4vw, 48px); font-weight: 900; letter-spacing: -1px; margin-bottom: 16px; }
+.cta-section p { font-size: 18px; color: var(--sub); margin-bottom: 32px; }
+.cta-note { font-size: 13px; color: var(--sub); margin-top: 32px; }
+
+/* FOOTER */
+footer {
+  background: #1d1d1f; color: #fff;
+  padding: 40px 24px;
+  text-align: center;
+}
+.footer-logo { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+.footer-links { display: flex; justify-content: center; gap: 24px; margin: 16px 0; flex-wrap: wrap; }
+.footer-links a { font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: #fff; }
+.footer-copy { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 16px; }
+
+.lang-toggle {
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 100px; padding: 6px 14px;
+  font-family: 'Figtree', sans-serif;
+  font-size: 13px; font-weight: 700; color: var(--sub);
+  cursor: pointer; transition: all 0.2s;
+}
+.lang-toggle:hover { border-color: var(--blue); color: var(--blue); }
+[data-en] { display: none; }
+body.en [data-fr] { display: none; }
+body.en [data-en] { display: block; }
+body.en span[data-en] { display: inline; }
+body.en span[data-fr] { display: none; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .nav-links { display: none; }
+  .mockup { max-width: 260px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo"><span>⚗️</span> BenchMate</a>
+  <div class="nav-links">
+    <a href="#features"><span data-fr>Fonctionnalités</span><span data-en>Features</span></a>
+    <a href="#pricing"><span data-fr>Tarifs</span><span data-en>Pricing</span></a>
+    <a href="privacy.html"><span data-fr>Confidentialité</span><span data-en>Privacy</span></a>
+    <button class="lang-toggle" onclick="toggleLang()" id="lang-toggle-btn">EN</button><a href="https://bench-mate-one.vercel.app" class="nav-cta" target="_blank">Essayer gratuitement</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-badge"><span data-fr>⚗️ Nouveau - Notifications push disponibles</span><span data-en>⚗️ New - Push notifications available</span></div>
+    <h1><span data-fr>Votre assistant<br><em>de paillasse</em><br>dans la poche</span><span data-en>Your <em>lab assistant</em><br>in your pocket</span></h1>
+    <p class="hero-sub"><span data-fr>BenchMate simplifie la gestion quotidienne de votre labo - calculs de solutions, suivi des stocks, dilutions et alertes d'expiration.</span><span data-en>BenchMate simplifies your daily lab management - solution calculations, stock tracking, dilutions and expiry alerts.</span></p>
+    <div class="hero-btns">
+      <a href="https://bench-mate-one.vercel.app" class="btn-primary" target="_blank"><span data-fr>Essayer gratuitement</span><span data-en>Try for free</span></a>
+      <a href="#features" class="btn-secondary"><span data-fr>Découvrir →</span><span data-en>Learn more →</span></a>
+    </div>
+
+    <div class="mockup-wrap">
+      <div class="mockup">
+        <div class="mockup-screen">
+          <div class="mockup-nav">
+            <div class="mockup-nav-title">BenchMate</div>
+            <div class="mockup-nav-sub">3 réactifs · Lots</div>
+          </div>
+          <div class="mockup-tabs">
+            <div class="mockup-tab"><span class="mockup-tab-icon">⚗️</span>Calc</div>
+            <div class="mockup-tab"><span class="mockup-tab-icon">💾</span>Recettes</div>
+            <div class="mockup-tab"><span class="mockup-tab-icon">🔬</span>AC</div>
+            <div class="mockup-tab"><span class="mockup-tab-icon">🧪</span>Dil</div>
+            <div class="mockup-tab active"><span class="mockup-tab-icon">📦</span>Lots</div>
+            <div class="mockup-tab"><span class="mockup-tab-icon">⚙️</span>Conv</div>
+          </div>
+          <div class="mockup-body">
+            <div class="mockup-card">
+              <div class="mockup-card-title">BSA <span class="mockup-badge badge-warn">⚠ 2j</span></div>
+              <div style="font-size:9px;color:#8e8e93">📅 20 mars 2026</div>
+            </div>
+            <div class="mockup-card">
+              <div class="mockup-card-title">Anti-PCNA <span class="mockup-badge badge-ok">✓ OK</span></div>
+              <div style="font-size:9px;color:#8e8e93">📅 15 juin 2026</div>
+            </div>
+            <div class="mockup-card">
+              <div class="mockup-card-title">Tris-HCl <span class="mockup-badge badge-exp">✗ Expiré</span></div>
+              <div style="font-size:9px;color:#8e8e93">📅 10 mars 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-label"><span data-fr>Fonctionnalités</span><span data-en>Features</span></div>
+  <h2 class="section-title"><span data-fr>Tout ce dont votre labo a besoin</span><span data-en>Everything your lab needs</span></h2>
+  <p class="section-sub"><span data-fr>Conçu par un chercheur, pour les chercheurs. Chaque outil répond à un vrai besoin de paillasse.</span><span data-en>Designed by a researcher, for researchers. Every tool answers a real bench need.</span></p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(0,122,255,0.1)">⚗️</div>
+      <h3><span data-fr>Calculateur de solutions</span><span data-en>Solution calculator</span></h3>
+      <p><span data-fr>Poudres, solutions molaires, dilutions en % - calculez les masses et volumes en quelques secondes. Sauvegardez vos recettes pour les réutiliser.</span><span data-en>Powders, molar solutions, % dilutions - calculate masses and volumes in seconds. Save your recipes for reuse.</span></p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(255,149,0,0.1)">📦</div>
+      <h3><span data-fr>Suivi des stocks</span><span data-en>Stock tracking</span></h3>
+      <p><span data-fr>Gérez vos lots de réactifs avec dates d'expiration. Recevez des notifications push directement sur votre téléphone avant expiration.</span><span data-en>Manage your reagent lots with expiry dates. Receive push notifications directly on your phone before expiration.</span></p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(175,82,222,0.1)">🧪</div>
+      <h3><span data-fr>Dilutions en série</span><span data-en>Serial dilutions</span></h3>
+      <p><span data-fr>Visualisation graphique, protocole détaillé, export PDF et copie vers le presse-papier. Idéal pour les courbes d'étalonnage et les IC50.</span><span data-en>Graphical visualization, detailed protocol, PDF export and clipboard copy. Perfect for standard curves and IC50.</span></p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(52,199,89,0.1)">🔬</div>
+      <h3><span data-fr>Base anticorps</span><span data-en>Antibody database</span></h3>
+      <p><span data-fr>Référencez vos anticorps avec dilutions, hôte, cible et stock restant. Retrouvez-les en un instant depuis votre téléphone.</span><span data-en>Reference your antibodies with dilutions, host, target and remaining stock. Find them instantly from your phone.</span></p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(255,59,48,0.1)">⚙️</div>
+      <h3><span data-fr>Conversions rapides</span><span data-en>Quick conversions</span></h3>
+      <p><span data-fr>Concentrations, pourcentages, température, vitesse de centrifugation - toutes les conversions courantes en un onglet.</span><span data-en>Concentrations, percentages, temperature, centrifugation speed - all common conversions in one tab.</span></p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(0,122,255,0.1)">☁️</div>
+      <h3><span data-fr>Sync multi-appareils</span><span data-en>Multi-device sync</span></h3>
+      <p><span data-fr>Vos données synchronisées en temps réel via Firebase. Accédez à votre labo depuis votre téléphone, tablette ou ordinateur.</span><span data-en>Your data synchronized in real time via Firebase. Access your lab from your phone, tablet or computer.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-num">6</div>
+      <div class="stat-label"><span data-fr>Outils intégrés</span><span data-en>Integrated tools</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">Free</div>
+      <div class="stat-label"><span data-fr>Version gratuite</span><span data-en>Free plan</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">FR/EN</div>
+      <div class="stat-label"><span data-fr>Bilingue</span><span data-en>Bilingual</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">PWA</div>
+      <div class="stat-label"><span data-fr>Installable sur mobile</span><span data-en>Installable on mobile</span></div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- PRICING -->
+<section class="section" id="pricing" style="text-align:center">
+  <div class="section-label"><span data-fr>Tarifs</span><span data-en>Pricing</span></div>
+  <h2 class="section-title"><span data-fr>Simple et transparent</span><span data-en>Simple and transparent</span></h2>
+  <p class="section-sub" style="margin:0 auto 48px"><span data-fr>Commencez gratuitement, passez en Pro quand vous en avez besoin.</span><span data-en>Start for free, upgrade to Pro when you need it.</span></p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:600px;margin:0 auto">
+    <div style="background:var(--card);border:1.5px solid var(--border);border-radius:24px;padding:32px;text-align:left">
+      <div style="font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px"><span data-fr>Gratuit</span><span data-en>Free</span></div>
+      <div style="font-size:40px;font-weight:900;color:var(--text);margin-bottom:4px">0€</div>
+      <div style="font-size:13px;color:var(--sub);margin-bottom:24px"><span data-fr>Pour toujours</span><span data-en>Forever</span></div>
+      <ul style="list-style:none;margin-bottom:28px">
+        <li style="padding:7px 0;border-bottom:1px solid var(--border);font-size:14px">✅ <span data-fr>3 recettes, 5 anticorps, 3 lots</span><span data-en>3 recipes, 5 antibodies, 3 lots</span></li>
+        <li style="padding:7px 0;border-bottom:1px solid var(--border);font-size:14px">✅ <span data-fr>Tous les outils</span><span data-en>All tools</span></li>
+        <li style="padding:7px 0;font-size:14px">✅ FR + EN</li>
+      </ul>
+      <a href="https://bench-mate-one.vercel.app" class="btn-secondary" style="width:100%;justify-content:center;display:flex" target="_blank"><span data-fr>Commencer</span><span data-en>Get started</span></a>
+    </div>
+    <div style="background:var(--card);border:2px solid var(--blue);border-radius:24px;padding:32px;text-align:left;position:relative">
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:100px"><span data-fr>Recommandé</span><span data-en>Recommended</span></div>
+      <div style="font-size:13px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px">Pro</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+        <span style="font-size:40px;font-weight:900;color:var(--blue)">4€</span>
+        <span style="font-size:14px;color:var(--sub)"><span data-fr>/mois</span><span data-en>/month</span></span>
+      </div>
+      <div style="margin-bottom:24px"><div style="font-size:22px;font-weight:800;color:var(--text)"><span data-fr>ou 36€</span><span data-en>or 36€</span><span style="font-size:14px;font-weight:500;color:var(--sub)"><span data-fr>/an</span><span data-en>/year</span></span></div><div style="font-size:12px;color:var(--blue);font-weight:600;margin-top:2px"><span data-fr>Économisez 12€ · 3 mois offerts</span><span data-en>Save 12€ · 3 months free</span></div></div>
+      <ul style="list-style:none;margin-bottom:28px">
+        <li style="padding:7px 0;border-bottom:1px solid var(--border);font-size:14px">✅ <span data-fr>Illimité</span><span data-en>Unlimited</span></li>
+        <li style="padding:7px 0;border-bottom:1px solid var(--border);font-size:14px">✅ <span data-fr>Sync cloud temps réel</span><span data-en>Real-time cloud sync</span></li>
+        <li style="padding:7px 0;border-bottom:1px solid var(--border);font-size:14px">✅ <span data-fr>Notifications push</span><span data-en>Push notifications</span></li>
+        <li style="padding:7px 0;font-size:14px">✅ <span data-fr>Mises à jour incluses</span><span data-en>Updates included</span></li>
+      </ul>
+      <a href="https://bench-mate-one.vercel.app" class="btn-primary" style="width:100%;justify-content:center;display:flex" target="_blank"><span data-fr>Essayer gratuitement</span><span data-en>Try for free</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2><span data-fr>Prêt à simplifier<br>votre paillasse ?</span><span data-en>Ready to simplify<br>your bench work?</span></h2>
+  <p><span data-fr>Rejoignez les chercheurs qui gagnent du temps chaque jour.</span><span data-en>Join researchers who save time every day.</span></p>
+  <div style="display:flex;justify-content:center;margin:0 auto">
+  <a href="https://bench-mate-one.vercel.app" class="btn-primary" style="font-size:18px;padding:16px 36px" target="_blank"><span data-fr>Essayer BenchMate gratuitement</span><span data-en>Try BenchMate for free</span></a>
+  </div>
+  <p class="cta-note"><span data-fr>Aucune installation requise · Fonctionne sur tous les appareils</span><span data-en>No installation required · Works on all devices</span></p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">⚗️ BenchMate</div>
+  <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px"><span data-fr>L'assistant de paillasse pour votre labo</span><span data-en>The lab bench assistant</span></p>
+  <div class="footer-links">
+    <a href="https://bench-mate-one.vercel.app">Application</a>
+    <a href="privacy.html"><span data-fr>Confidentialité</span><span data-en>Privacy</span></a>
+    <a href="mailto:benchmate.lab@gmail.com">Contact</a>
+  </div>
+  <div class="footer-copy">© 2026 BenchMate · Créé par Hugo · Tous droits réservés</div>
+
+<script>
+function toggleLang() {
+  var isEn = document.body.classList.toggle('en');
+  document.getElementById('lang-toggle-btn').textContent = isEn ? 'FR' : 'EN';
+  document.documentElement.lang = isEn ? 'en' : 'fr';
+}
+</script>
+</body>
+</html>
