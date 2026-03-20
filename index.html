@@ -1265,7 +1265,7 @@ function pushToCloud(cb) {
 }
 
 function syncFromCloud() {
-  if (!fbUser || !isPro()) return;
+  if (!fbUser) return;
   waitFb(function(fb) {
     var ref = fb.doc(fb.db, 'users', fbUser.uid);
     fb.getDoc(ref).then(function(snap) {
@@ -2733,17 +2733,21 @@ window.closeUpgradeModal = function() {
 };
 window.goCheckout = function(plan) {
   if (!fbUser) { toast(LANG === 'en' ? 'Please sign in first' : 'Connectez-vous d\'abord'); return; }
+  toast(LANG === 'en' ? 'Redirecting to payment...' : 'Redirection vers le paiement...');
   fetch('/api/create-checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ plan: plan, uid: fbUser.uid, email: fbUser.email })
   })
-  .then(function(r) { return r.json(); })
+  .then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
   .then(function(data) {
     if (data.url) window.location.href = data.url;
     else toast('Erreur: ' + (data.error || 'unknown'));
   })
-  .catch(function(e) { toast('Erreur: ' + e.message); });
+  .catch(function(e) { toast('Erreur paiement: ' + e.message); });
 };
 // ─── INIT ─────────────────────────────────────────────────────────────
 applyDark(); updProg(); updSavedBadge(); updAbBadge(); checkUrlRecipe(); applyI18n(); initAuth();
