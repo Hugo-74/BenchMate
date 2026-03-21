@@ -1,5 +1,5 @@
-const CACHE_NAME = 'benchmate-v5';
-const urlsToCache = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+const CACHE_NAME = 'benchmate-v6';
+const urlsToCache = ['/', '/app.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
@@ -31,7 +31,7 @@ self.addEventListener('push', event => {
       body,
       icon:  '/icon-192.png',
       badge: '/icon-192.png',
-      data:  { url: data.url || 'https://bench-mate-one.vercel.app/#lots' }
+      data:  { url: data.url || 'https://bench-mate-one.vercel.app/app.html#lots' }
     })
   );
 });
@@ -41,6 +41,6 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
   const url = event.notification.data && event.notification.data.url
     ? event.notification.data.url
-    : 'https://bench-mate-one.vercel.app/#lots';
+    : 'https://bench-mate-one.vercel.app/app.html#lots';
   event.waitUntil(clients.openWindow(url));
 });
