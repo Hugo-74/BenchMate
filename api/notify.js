@@ -3,15 +3,11 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
 
 if (!getApps().length) {
-  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '')
-    .replace(/\\n/g, '\n')
-    .replace(/^"|"$/g, ''); // retire les guillemets si présents
-
   initializeApp({
     credential: cert({
       projectId:   process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey,
+      privateKey:  (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n').replace(/^"|"$/g, ''),
     })
   });
 }
@@ -26,32 +22,50 @@ export default async function handler(req, res) {
   }
   try {
     const now = new Date();
+    const today = now.toISOString().split('T')[0]; // ex: "2026-03-21"
+
+    // Nettoyer les notif_sent qui ne sont pas d'aujourd'hui
+    const oldSnap = await db.collection('notif_sent').get();
+    const deletePromises = [];
+    oldSnap.forEach(doc => {
+      const sentAt = doc.data().sentAt || '';
+      if (!sentAt.startsWith(today)) {
+        deletePromises.push(doc.ref.delete());
+      }
+    });
+    await Promise.all(deletePromises);
+
     const usersSnap = await db.collection('users').get();
     let sent = 0;
+
     for (const userDoc of usersSnap.docs) {
       const data = userDoc.data();
       const fcmToken = data.fcmToken;
       const lots = data.lots ? JSON.parse(data.lots) : [];
       if (!fcmToken || !lots.length) continue;
+
       for (const lot of lots) {
         if (!lot.exp || lot.notifOn === false) continue;
-        const today   = new Date(); today.setHours(0,0,0,0);
+        const today2  = new Date(); today2.setHours(0,0,0,0);
         const expDate = new Date(lot.exp + 'T00:00:00'); expDate.setHours(0,0,0,0);
-        const daysLeft = Math.round((expDate - today) / 86400000);
+        const daysLeft = Math.round((expDate - today2) / 86400000);
         const threshold = lot.notifDays !== undefined ? lot.notifDays : 7;
         if (daysLeft < 0 || daysLeft > threshold) continue;
+
         const sentRef = db.collection('notif_sent').doc(userDoc.id + '_' + lot.id + '_' + daysLeft);
         if ((await sentRef.get()).exists) continue;
+
         const body = daysLeft === 0
           ? `${lot.nom} expire aujourd'hui !`
           : `${lot.nom} expire dans ${daysLeft} jour${daysLeft > 1 ? 's' : ''}`;
+
         try {
           await fcm.send({
             token: fcmToken,
-            notification: { title: 'BenchMate — Stock', body },
+            notification: { title: 'BenchMate - Stock', body },
             webpush: {
               notification: { icon: '/icon-192.png' },
-              fcmOptions: { link: 'https://bench-mate-one.vercel.app/#lots' }
+              fcmOptions: { link: 'https://bench-mate-one.vercel.app/app.html#lots' }
             }
           });
           await sentRef.set({ sentAt: now.toISOString() });
