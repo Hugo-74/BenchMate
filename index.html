@@ -279,6 +279,7 @@ footer {
 .lang-toggle:hover { border-color: var(--blue); color: var(--blue); }
 [data-en] { display: none; }
 span[data-fr] { display: inline; }
+span[data-fr] { display: inline; }
 body.en [data-fr] { display: none; }
 body.en [data-en] { display: block; }
 body.en span[data-en] { display: inline; }
@@ -472,11 +473,15 @@ body.en span[data-fr] { display: none; }
     <a href="https://bench-mate-one.vercel.app">Application</a>
     <a href="privacy.html"><span data-fr>Confidentialité</span><span data-en>Privacy</span></a>
     <a href="terms.html"><span data-fr>CGU</span><span data-en>Terms</span></a>
-    <a href="/cdn-cgi/l/email-protection#6103040f02090c0015044f0d000321060c00080d4f020e0c">Contact</a>
+    <a href="mailto:benchmate.lab@gmail.com">Contact</a>
   </div>
   <div class="footer-copy">© 2026 BenchMate · Créé par Hugo · Tous droits réservés</div
 <script>
 function toggleLang() {
   var isEn = document.body.classList.toggle('en');
   document.getElementById('lang-toggle-btn').textContent = isEn ? 'FR' : 'EN';
-  document.documentElement.lang = i
+  document.documentElement.lang = isEn ? 'en' : 'fr';
+}
+</script>
+</body>
+</html>
