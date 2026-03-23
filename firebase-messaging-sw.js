@@ -21,7 +21,7 @@ messaging.onBackgroundMessage(function(payload) {
     body,
     icon:  '/icon-192.png',
     badge: '/icon-192.png',
-    data:  { url: 'https://bench-mate-one.vercel.app/#lots' }
+    data:  { url: 'https://bench-mate-one.vercel.app/#inventory' }
   });
 });
 
@@ -29,6 +29,6 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
   const url = (event.notification.data && event.notification.data.url)
     ? event.notification.data.url
-    : 'https://bench-mate-one.vercel.app/#lots';
+    : 'https://bench-mate-one.vercel.app/#inventory';
   event.waitUntil(clients.openWindow(url));
 });
