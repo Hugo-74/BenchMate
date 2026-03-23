@@ -2,8 +2,6 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="/icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BenchMate - L'assistant de paillasse pour votre labo</title>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -278,8 +276,6 @@ footer {
 }
 .lang-toggle:hover { border-color: var(--blue); color: var(--blue); }
 [data-en] { display: none; }
-span[data-fr] { display: inline; }
-span[data-fr] { display: inline; }
 body.en [data-fr] { display: none; }
 body.en [data-en] { display: block; }
 body.en span[data-en] { display: inline; }
@@ -304,8 +300,8 @@ body.en span[data-fr] { display: none; }
     <a href="#features"><span data-fr>Fonctionnalités</span><span data-en>Features</span></a>
     <a href="#pricing"><span data-fr>Tarifs</span><span data-en>Pricing</span></a>
     <a href="privacy.html"><span data-fr>Confidentialité</span><span data-en>Privacy</span></a>
-    <a href="terms.html"><span data-fr>CGU</span><span data-en>Terms</span></a>
-    <button class="lang-toggle" onclick="toggleLang()" id="lang-toggle-btn">EN</button><a href="https://bench-mate-one.vercel.app" class="nav-cta" target="_blank">Essayer gratuitement</a>
+    <a href="terms.html">CGU / Terms</a>
+    <button class="lang-toggle" onclick="toggleLang()" id="lang-toggle-btn">EN</button><a href="https://bench-mate-one.vercel.app/app.html" class="nav-cta" target="_blank"><span data-fr>Essayer gratuitement</span><span data-en>Try for free</span></a>
   </div>
 </nav>
 
@@ -316,7 +312,7 @@ body.en span[data-fr] { display: none; }
     <h1><span data-fr>Votre assistant<br><em>de paillasse</em><br>dans la poche</span><span data-en>Your <em>lab assistant</em><br>in your pocket</span></h1>
     <p class="hero-sub"><span data-fr>BenchMate simplifie la gestion quotidienne de votre labo - calculs de solutions, suivi des stocks, dilutions et alertes d'expiration.</span><span data-en>BenchMate simplifies your daily lab management - solution calculations, stock tracking, dilutions and expiry alerts.</span></p>
     <div class="hero-btns">
-      <a href="https://bench-mate-one.vercel.app" class="btn-primary" target="_blank"><span data-fr>Essayer gratuitement</span><span data-en>Try for free</span></a>
+      <a href="https://bench-mate-one.vercel.app/app.html" class="btn-primary" target="_blank"><span data-fr>Essayer gratuitement</span><span data-en>Try for free</span></a>
       <a href="#features" class="btn-secondary"><span data-fr>Découvrir →</span><span data-en>Learn more →</span></a>
     </div>
 
@@ -325,14 +321,14 @@ body.en span[data-fr] { display: none; }
         <div class="mockup-screen">
           <div class="mockup-nav">
             <div class="mockup-nav-title">BenchMate</div>
-            <div class="mockup-nav-sub">3 réactifs · Lots</div>
+            <div class="mockup-nav-sub">3 réactifs · Inventaire</div>
           </div>
           <div class="mockup-tabs">
             <div class="mockup-tab"><span class="mockup-tab-icon">⚗️</span>Calc</div>
             <div class="mockup-tab"><span class="mockup-tab-icon">💾</span>Recettes</div>
             <div class="mockup-tab"><span class="mockup-tab-icon">🔬</span>AC</div>
             <div class="mockup-tab"><span class="mockup-tab-icon">🧪</span>Dil</div>
-            <div class="mockup-tab active"><span class="mockup-tab-icon">📦</span>Lots</div>
+            <div class="mockup-tab active"><span class="mockup-tab-icon">📦</span>Inventaire</div>
             <div class="mockup-tab"><span class="mockup-tab-icon">⚙️</span>Conv</div>
           </div>
           <div class="mockup-body">
@@ -370,7 +366,7 @@ body.en span[data-fr] { display: none; }
     <div class="feature-card">
       <div class="feature-icon" style="background:rgba(255,149,0,0.1)">📦</div>
       <h3><span data-fr>Suivi des stocks</span><span data-en>Stock tracking</span></h3>
-      <p><span data-fr>Gérez vos lots de réactifs avec dates d'expiration. Recevez des notifications push directement sur votre téléphone avant expiration.</span><span data-en>Manage your reagent lots with expiry dates. Receive push notifications directly on your phone before expiration.</span></p>
+      <p><span data-fr>Gérez vos inventaires de réactifs avec dates d'expiration. Recevez des notifications push directement sur votre téléphone avant expiration.</span><span data-en>Manage your reagent inventory with expiry dates. Receive push notifications directly on your phone before expiration.</span></p>
     </div>
     <div class="feature-card">
       <div class="feature-icon" style="background:rgba(175,82,222,0.1)">🧪</div>
@@ -430,11 +426,11 @@ body.en span[data-fr] { display: none; }
       <div style="font-size:40px;font-weight:900;color:var(--text);margin-bottom:4px">0€</div>
       <div style="font-size:13px;color:var(--sub);margin-bottom:24px"><span data-fr>Pour toujours</span><span data-en>Forever</span></div>
       <ul style="list-style:none;margin-bottom:28px">
-        <li style="padding:7px 0;border-bottom:1px solid var(--border);font-size:14px">✅ <span data-fr>3 recettes, 5 anticorps, 3 lots</span><span data-en>3 recipes, 5 antibodies, 3 lots</span></li>
+        <li style="padding:7px 0;border-bottom:1px solid var(--border);font-size:14px">✅ <span data-fr>3 recettes, 5 anticorps, 3 lots</span><span data-en>3 recipes, 5 antibodies, 3 batches</span></li>
         <li style="padding:7px 0;border-bottom:1px solid var(--border);font-size:14px">✅ <span data-fr>Tous les outils</span><span data-en>All tools</span></li>
         <li style="padding:7px 0;font-size:14px">✅ FR + EN</li>
       </ul>
-      <a href="https://bench-mate-one.vercel.app" class="btn-secondary" style="width:100%;justify-content:center;display:flex" target="_blank"><span data-fr>Commencer</span><span data-en>Get started</span></a>
+      <a href="https://bench-mate-one.vercel.app/app.html" class="btn-secondary" style="width:100%;justify-content:center;display:flex" target="_blank"><span data-fr>Commencer</span><span data-en>Get started</span></a>
     </div>
     <div style="background:var(--card);border:2px solid var(--blue);border-radius:24px;padding:32px;text-align:left;position:relative">
       <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:100px"><span data-fr>Recommandé</span><span data-en>Recommended</span></div>
@@ -450,7 +446,7 @@ body.en span[data-fr] { display: none; }
         <li style="padding:7px 0;border-bottom:1px solid var(--border);font-size:14px">✅ <span data-fr>Notifications push</span><span data-en>Push notifications</span></li>
         <li style="padding:7px 0;font-size:14px">✅ <span data-fr>Mises à jour incluses</span><span data-en>Updates included</span></li>
       </ul>
-      <a href="https://bench-mate-one.vercel.app" class="btn-primary" style="width:100%;justify-content:center;display:flex" target="_blank"><span data-fr>Essayer gratuitement</span><span data-en>Try for free</span></a>
+      <a href="https://bench-mate-one.vercel.app/app.html" class="btn-primary" style="width:100%;justify-content:center;display:flex" target="_blank"><span data-fr>Essayer gratuitement</span><span data-en>Try for free</span></a>
     </div>
   </div>
 </section>
@@ -460,7 +456,7 @@ body.en span[data-fr] { display: none; }
   <h2><span data-fr>Prêt à simplifier<br>votre paillasse ?</span><span data-en>Ready to simplify<br>your bench work?</span></h2>
   <p><span data-fr>Rejoignez les chercheurs qui gagnent du temps chaque jour.</span><span data-en>Join researchers who save time every day.</span></p>
   <div style="display:flex;justify-content:center;margin:0 auto">
-  <a href="https://bench-mate-one.vercel.app" class="btn-primary" style="font-size:18px;padding:16px 36px" target="_blank"><span data-fr>Essayer BenchMate gratuitement</span><span data-en>Try BenchMate for free</span></a>
+  <a href="https://bench-mate-one.vercel.app/app.html" class="btn-primary" style="font-size:18px;padding:16px 36px" target="_blank"><span data-fr>Essayer BenchMate gratuitement</span><span data-en>Try BenchMate for free</span></a>
   </div>
   <p class="cta-note"><span data-fr>Aucune installation requise · Fonctionne sur tous les appareils</span><span data-en>No installation required · Works on all devices</span></p>
 </section>
@@ -470,12 +466,13 @@ body.en span[data-fr] { display: none; }
   <div class="footer-logo">⚗️ BenchMate</div>
   <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px"><span data-fr>L'assistant de paillasse pour votre labo</span><span data-en>The lab bench assistant</span></p>
   <div class="footer-links">
-    <a href="https://bench-mate-one.vercel.app">Application</a>
+    <a href="https://bench-mate-one.vercel.app/app.html">Application</a>
     <a href="privacy.html"><span data-fr>Confidentialité</span><span data-en>Privacy</span></a>
-    <a href="terms.html"><span data-fr>CGU</span><span data-en>Terms</span></a>
+    <a href="terms.html">CGU / Terms</a>
     <a href="mailto:benchmate.lab@gmail.com">Contact</a>
   </div>
-  <div class="footer-copy">© 2026 BenchMate · Créé par Hugo · Tous droits réservés</div
+  <div class="footer-copy">© 2026 BenchMate · Créé par Hugo · Tous droits réservés</div>
+</footer>
 <script>
 function toggleLang() {
   var isEn = document.body.classList.toggle('en');
