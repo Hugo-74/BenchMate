@@ -31,7 +31,7 @@ self.addEventListener('push', event => {
       body,
       icon:  '/icon-192.png',
       badge: '/icon-192.png',
-      data:  { url: data.url || 'https://bench-mate-one.vercel.app/app.html#lots' }
+      data:  { url: data.url || 'https://bench-mate-one.vercel.app/app.html#inventory' }
     })
   );
 });
@@ -41,6 +41,6 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
   const url = event.notification.data && event.notification.data.url
     ? event.notification.data.url
-    : 'https://bench-mate-one.vercel.app/app.html#lots';
+    : 'https://bench-mate-one.vercel.app/app.html#inventory';
   event.waitUntil(clients.openWindow(url));
 });
