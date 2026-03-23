@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BenchMate - Conditions Générales d'Utilisation</title>
+<link rel="icon" href="/icon-192.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #007aff;
+    --bg: #f5f5f7;
+    --card: #ffffff;
+    --text: #1d1d1f;
+    --sub: #6e6e73;
+    --border: #e5e5ea;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Figtree', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+  .header {
+    background: linear-gradient(135deg, #1d1d1f 0%, #3a3a3c 100%);
+    color: #fff; padding: 60px 24px 48px; text-align: center;
+  }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.15); border-radius: 100px;
+    padding: 6px 16px; font-size: 13px; font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .header h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .header p { font-size: 15px; opacity: 0.7; }
+
+  .lang-bar {
+    background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; display: flex; justify-content: center; gap: 8px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .lang-btn {
+    padding: 6px 20px; border-radius: 100px; border: 1.5px solid var(--border);
+    font-family: 'Figtree', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; background: transparent; color: var(--sub); transition: all 0.2s;
+  }
+  .lang-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
+  .date-badge {
+    display: inline-block; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 100px; padding: 4px 14px; font-size: 12px; color: var(--sub); margin-bottom: 32px;
+  }
+  .section {
+    background: var(--card); border-radius: 16px; padding: 28px 32px;
+    margin-bottom: 12px; border: 1px solid var(--border);
+  }
+  .section h2 { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+  .section p, .section li { font-size: 15px; color: #3a3a3c; margin-bottom: 8px; line-height: 1.6; }
+  .section ul { padding-left: 20px; }
+  .section li { margin-bottom: 6px; }
+  .highlight {
+    background: rgba(0,122,255,0.06); border-left: 3px solid var(--blue);
+    border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0;
+    font-size: 14px; color: var(--sub);
+  }
+  .warn {
+    background: rgba(255,149,0,0.08); border-left: 3px solid #ff9500;
+    border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0;
+    font-size: 14px; color: #7a4800;
+  }
+  .contact-box {
+    background: rgba(0,122,255,0.06); border: 1px solid rgba(0,122,255,0.2);
+    border-radius: 12px; padding: 20px; text-align: center; margin-top: 8px;
+  }
+  .contact-box a { color: var(--blue); font-weight: 600; text-decoration: none; }
+  .lang-section { display: none; }
+  .lang-section.active { display: block; }
+  footer {
+    text-align: center; padding: 24px; font-size: 13px;
+    color: var(--sub); border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--blue); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">⚗️ BenchMate</div>
+  <h1>Conditions Générales d'Utilisation</h1>
+  <p>Terms and Conditions of Use</p>
+</div>
+
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('fr')">🇫🇷 Français</button>
+  <button class="lang-btn" onclick="setLang('en')">🇬🇧 English</button>
+</div>
+
+<!-- FRANÇAIS -->
+<div class="lang-section active" id="lang-fr">
+<div class="container">
+  <div class="date-badge">📅 Dernière mise à jour : mars 2026</div>
+
+  <div class="section">
+    <h2>1. Identification</h2>
+    <p>BenchMate est un service numérique édité par :</p>
+    <ul>
+      <li><strong>Nom :</strong> Hugo Stimoli</li>
+      <li><strong>Pays :</strong> Belgique</li>
+      <li><strong>Contact :</strong> <a href="mailto:benchmate.lab@gmail.com">benchmate.lab@gmail.com</a></li>
+      <li><strong>Site :</strong> <a href="https://bench-mate-one.vercel.app">bench-mate-one.vercel.app</a></li>
+    </ul>
+    <div class="warn">⚠️ Numéro d'entreprise (BCE) en cours d'obtention. Ces CGU seront mises à jour dès son attribution.</div>
+  </div>
+
+  <div class="section">
+    <h2>2. Description du service</h2>
+    <p>BenchMate est une application web progressive (PWA) destinée aux professionnels de laboratoire. Elle propose :</p>
+    <ul>
+      <li>Un calculateur de solutions et tampons</li>
+      <li>Une gestion de recettes sauvegardées</li>
+      <li>Un suivi des anticorps</li>
+      <li>Un outil de dilutions en série</li>
+      <li>Un suivi des stocks avec alertes d'expiration</li>
+      <li>Des outils de conversion</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>3. Plans tarifaires</h2>
+    <p><strong>Plan Gratuit</strong> — accès limité (3 recettes, 5 anticorps, 3 lots). Gratuit sans durée limitée.</p>
+    <p><strong>Plan Pro</strong> — accès illimité à toutes les fonctionnalités, synchronisation cloud et notifications push.</p>
+    <ul>
+      <li>4,00 € / mois (abonnement mensuel)</li>
+      <li>36,00 € / an (abonnement annuel)</li>
+    </ul>
+    <p>Les prix sont en euros TTC. Les paiements sont traités par <strong>Stripe</strong>.</p>
+  </div>
+
+  <div class="section">
+    <h2>4. Droit de rétractation</h2>
+    <p>Conformément à la législation européenne, vous disposez d'un <strong>délai de 14 jours</strong> à compter de la souscription pour vous rétracter sans motif.</p>
+    <p>Pour exercer ce droit, contactez-nous à <a href="mailto:benchmate.lab@gmail.com">benchmate.lab@gmail.com</a> en indiquant votre email et la date de souscription. Le remboursement sera effectué dans les 14 jours suivant votre demande.</p>
+    <div class="highlight">Le droit de rétractation ne s'applique pas si vous avez expressément demandé l'exécution immédiate du service et que celui-ci a été pleinement exécuté.</div>
+  </div>
+
+  <div class="section">
+    <h2>5. Résiliation</h2>
+    <p>Vous pouvez résilier votre abonnement à tout moment depuis votre espace client Stripe. La résiliation prend effet à la fin de la période de facturation en cours. Aucun remboursement partiel n'est effectué.</p>
+  </div>
+
+  <div class="section">
+    <h2>6. Données personnelles</h2>
+    <p>Le traitement de vos données personnelles est décrit dans notre <a href="/privacy.html">Politique de confidentialité</a>. En utilisant BenchMate, vous acceptez cette politique.</p>
+  </div>
+
+  <div class="section">
+    <h2>7. Responsabilité</h2>
+    <p>BenchMate est fourni "tel quel". Hugo Stimoli ne peut être tenu responsable :</p>
+    <ul>
+      <li>Des erreurs de calcul résultant de données incorrectes saisies par l'utilisateur</li>
+      <li>Des interruptions de service liées à des tiers (Firebase, Vercel, Stripe)</li>
+      <li>De toute décision prise sur la base des résultats de l'application</li>
+    </ul>
+    <div class="warn">⚠️ BenchMate est un outil d'aide au calcul. Il ne remplace pas la vérification humaine des résultats dans un contexte scientifique.</div>
+  </div>
+
+  <div class="section">
+    <h2>8. Propriété intellectuelle</h2>
+    <p>L'application BenchMate, son code, son design et son contenu sont la propriété exclusive de Hugo Stimoli. Toute reproduction, modification ou distribution non autorisée est interdite.</p>
+  </div>
+
+  <div class="section">
+    <h2>9. Droit applicable</h2>
+    <p>Les présentes CGU sont soumises au droit belge. En cas de litige, les tribunaux compétents sont ceux de Belgique.</p>
+  </div>
+
+  <div class="section">
+    <h2>10. Contact</h2>
+    <div class="contact-box">
+      <p>Pour toute question relative aux présentes CGU :</p>
+      <p style="margin-top:8px"><a href="mailto:benchmate.lab@gmail.com">benchmate.lab@gmail.com</a></p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ENGLISH -->
+<div class="lang-section" id="lang-en">
+<div class="container">
+  <div class="date-badge">📅 Last updated: March 2026</div>
+
+  <div class="section">
+    <h2>1. Publisher</h2>
+    <p>BenchMate is a digital service published by:</p>
+    <ul>
+      <li><strong>Name:</strong> Hugo Stimoli</li>
+      <li><strong>Country:</strong> Belgium</li>
+      <li><strong>Contact:</strong> <a href="mailto:benchmate.lab@gmail.com">benchmate.lab@gmail.com</a></li>
+      <li><strong>Website:</strong> <a href="https://bench-mate-one.vercel.app">bench-mate-one.vercel.app</a></li>
+    </ul>
+    <div class="warn">⚠️ Belgian enterprise number (BCE) pending. These terms will be updated upon registration.</div>
+  </div>
+
+  <div class="section">
+    <h2>2. Service description</h2>
+    <p>BenchMate is a Progressive Web App (PWA) for laboratory professionals, offering:</p>
+    <ul>
+      <li>Solution and buffer calculator</li>
+      <li>Saved recipe management</li>
+      <li>Antibody tracking</li>
+      <li>Serial dilution tool</li>
+      <li>Stock tracking with expiry alerts</li>
+      <li>Conversion tools</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>3. Pricing</h2>
+    <p><strong>Free Plan</strong> — limited access (3 recipes, 5 antibodies, 3 lots). Free with no time limit.</p>
+    <p><strong>Pro Plan</strong> — unlimited access to all features, cloud sync and push notifications.</p>
+    <ul>
+      <li>€4.00 / month (monthly subscription)</li>
+      <li>€36.00 / year (annual subscription)</li>
+    </ul>
+    <p>Prices are in euros including tax. Payments are processed by <strong>Stripe</strong>.</p>
+  </div>
+
+  <div class="section">
+    <h2>4. Right of withdrawal</h2>
+    <p>Under European law, you have <strong>14 days</strong> from subscription to withdraw without reason.</p>
+    <p>To exercise this right, contact us at <a href="mailto:benchmate.lab@gmail.com">benchmate.lab@gmail.com</a> with your email and subscription date. Refunds will be processed within 14 days.</p>
+    <div class="highlight">The right of withdrawal does not apply if you have expressly requested immediate execution of the service and it has been fully performed.</div>
+  </div>
+
+  <div class="section">
+    <h2>5. Cancellation</h2>
+    <p>You may cancel your subscription at any time via your Stripe customer portal. Cancellation takes effect at the end of the current billing period. No partial refunds are issued.</p>
+  </div>
+
+  <div class="section">
+    <h2>6. Personal data</h2>
+    <p>The processing of your personal data is described in our <a href="/privacy.html">Privacy Policy</a>. By using BenchMate, you accept this policy.</p>
+  </div>
+
+  <div class="section">
+    <h2>7. Liability</h2>
+    <p>BenchMate is provided "as is". Hugo Stimoli cannot be held liable for:</p>
+    <ul>
+      <li>Calculation errors resulting from incorrect data entered by the user</li>
+      <li>Service interruptions related to third parties (Firebase, Vercel, Stripe)</li>
+      <li>Any decision made based on the application's results</li>
+    </ul>
+    <div class="warn">⚠️ BenchMate is a calculation aid tool. It does not replace human verification of results in a scientific context.</div>
+  </div>
+
+  <div class="section">
+    <h2>8. Intellectual property</h2>
+    <p>The BenchMate application, its code, design and content are the exclusive property of Hugo Stimoli. Any unauthorized reproduction, modification or distribution is prohibited.</p>
+  </div>
+
+  <div class="section">
+    <h2>9. Applicable law</h2>
+    <p>These Terms are governed by Belgian law. In case of dispute, the competent courts are those of Belgium.</p>
+  </div>
+
+  <div class="section">
+    <h2>10. Contact</h2>
+    <div class="contact-box">
+      <p>For any questions regarding these Terms:</p>
+      <p style="margin-top:8px"><a href="mailto:benchmate.lab@gmail.com">benchmate.lab@gmail.com</a></p>
+    </div>
+  </div>
+</div>
+</div>
+
+<footer>
+  <a href="https://bench-mate-one.vercel.app">⚗️ BenchMate</a> &bull;
+  <a href="/privacy.html">Confidentialité</a> &bull;
+  CGU / Terms
+</footer>
+
+<script>
+function setLang(lang) {
+  document.querySelectorAll('.lang-section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.remove('active'); });
+  var section = document.getElementById('lang-' + lang);
+  if (section) section.classList.add('active');
+  var btn = document.querySelector('.lang-btn[onclick="setLang(\'' + lang + '\')"]');
+  if (btn) btn.classList.add('active');
+  document.documentElement.lang = lang;
+}
+</script>
+</body>
+</html>
