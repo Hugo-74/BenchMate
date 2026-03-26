@@ -539,6 +539,50 @@ select.ab-finp { appearance:none; -webkit-appearance:none; cursor:pointer; }
 <div class="page" id="page-dil">
 <div class="sc">
 
+  <div class="cv-card" style="margin-bottom:12px">
+    <div class="cv-hdr">
+      <div class="cv-ico" style="background:rgba(0,122,255,0.12);font-size:18px">💧</div>
+      <div><div class="cv-ttl" data-i18n="sdil_ttl">Dilution</div><div class="cv-sub" data-i18n="sdil_sub">Calculer volume stock et diluant</div></div>
+    </div>
+    <div class="cv-body">
+      <div class="cv-row">
+        <span class="cv-lbl" data-i18n="sdil_c1">Concentration stock</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="number" class="cv-inp" id="sdil-c1" placeholder="1000" min="0" step="any" oninput="calcSimpleDil()">
+          <select class="usel" id="sdil-u1" onchange="calcSimpleDil()"><option>µg/mL</option><option>mg/mL</option><option>g/mL</option><option>mM</option><option>µM</option><option>nM</option><option>ng/mL</option><option>U/mL</option><option selected>x</option></select>
+        </div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-lbl" data-i18n="sdil_c2">Concentration cible</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="number" class="cv-inp" id="sdil-c2" placeholder="100" min="0" step="any" oninput="calcSimpleDil()">
+          <select class="usel" id="sdil-u2" onchange="calcSimpleDil()"><option>µg/mL</option><option>mg/mL</option><option>g/mL</option><option>mM</option><option>µM</option><option>nM</option><option>ng/mL</option><option>U/mL</option><option selected>x</option></select>
+        </div>
+      </div>
+      <div class="cv-row">
+        <span class="cv-lbl" data-i18n="sdil_v2">Volume final souhaité</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="number" class="cv-inp" id="sdil-v2" placeholder="1000" min="0" step="any" oninput="calcSimpleDil()">
+          <select class="usel" id="sdil-vu" onchange="calcSimpleDil()"><option selected>µL</option><option>mL</option></select>
+        </div>
+      </div>
+      <div id="sdil-result" style="display:none;margin-top:12px;background:var(--blue-l);border-radius:12px;padding:14px">
+        <div style="font-size:13px;color:var(--l2);margin-bottom:8px" data-i18n="sdil_result_lbl">Résultat</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:130px">
+            <div style="font-size:11px;color:var(--l2);margin-bottom:2px" data-i18n="sdil_v1_lbl">Volume stock à prélever</div>
+            <div style="font-size:20px;font-weight:700;color:var(--blue)" id="sdil-v1-result">-</div>
+          </div>
+          <div style="flex:1;min-width:130px">
+            <div style="font-size:11px;color:var(--l2);margin-bottom:2px" data-i18n="sdil_vdil_lbl">Volume diluant à ajouter</div>
+            <div style="font-size:20px;font-weight:700;color:var(--blue)" id="sdil-vdil-result">-</div>
+          </div>
+        </div>
+        <div id="sdil-warn" style="display:none;margin-top:8px;font-size:12px;color:var(--red)" data-i18n="sdil_warn">⚠ Unités incompatibles pour la conversion</div>
+      </div>
+    </div>
+  </div>
+
   <div class="cv-card">
     <div class="cv-hdr">
       <div class="cv-ico" style="background:rgba(175,82,222,0.12);font-size:18px">🧪</div>
@@ -2131,7 +2175,7 @@ var I18N = {
     auth_signout_done:'Déconnecté', auth_syncing:'Synchronisation...',
     auth_sync_done:'Synchronisé !', auth_synced_on_login:'Données synchronisées',
     tab_dil:'Dilutions',
-    dil_ttl:'Dilution en série', dil_sub:'Anticorps, standards, IC50...',
+    sdil_ttl:'Dilution', sdil_sub:'Calculer volume stock et diluant', sdil_c1:'Concentration stock', sdil_c2:'Concentration cible', sdil_v2:'Volume final souhaité', sdil_result_lbl:'Résultat', sdil_v1_lbl:'Volume stock à prélever', sdil_vdil_lbl:'Volume diluant à ajouter', sdil_warn:'⚠ Unités incompatibles', dil_ttl:'Dilution en série', dil_sub:'Anticorps, standards, IC50...',
     dil_stock_conc:'Conc. stock', dil_factor:'Facteur de dilution',
     dil_steps:'Nombre de puits', dil_vol:'Volume par puits',
     dil_visual:'Visualisation', dil_protocol:'Protocole',
@@ -2221,7 +2265,7 @@ var I18N = {
     auth_signout_done:'Signed out', auth_syncing:'Syncing...',
     auth_sync_done:'Synced!', auth_synced_on_login:'Data synced',
     tab_dil:'Dilutions',
-    dil_ttl:'Serial dilution', dil_sub:'Antibodies, standards, IC50...',
+    sdil_ttl:'Dilution', sdil_sub:'Calculate stock and diluent volumes', sdil_c1:'Stock concentration', sdil_c2:'Target concentration', sdil_v2:'Desired final volume', sdil_result_lbl:'Result', sdil_v1_lbl:'Stock volume to take', sdil_vdil_lbl:'Diluent volume to add', sdil_warn:'⚠ Incompatible units', dil_ttl:'Serial dilution', dil_sub:'Antibodies, standards, IC50...',
     dil_stock_conc:'Stock conc.', dil_factor:'Dilution factor',
     dil_steps:'Number of wells', dil_vol:'Volume per well',
     dil_visual:'Visualization', dil_protocol:'Protocol',
@@ -2771,6 +2815,57 @@ window.goCheckout = function(plan) {
     else toast('Erreur: ' + (data.error || 'unknown'));
   })
   .catch(function(e) { toast('Erreur: ' + e.message); });
+};
+
+// ─── DILUTION SIMPLE ─────────────────────────────────────────────────
+function toBaseConc(val, unit) {
+  // Convert all concentrations to nM or ng/mL base
+  var molar = {'M': 1e12, 'mM': 1e9, 'µM': 1e6, 'uM': 1e6, 'nM': 1e3};
+  var mass  = {'g/mL': 1e12, 'mg/mL': 1e9, 'µg/mL': 1e6, 'ug/mL': 1e6, 'ng/mL': 1e3};
+  var other = {'U/mL': 1, 'x': 1};
+  if (molar[unit] !== undefined) return { val: val * molar[unit], type: 'molar' };
+  if (mass[unit]  !== undefined) return { val: val * mass[unit],  type: 'mass'  };
+  return { val: val, type: unit };
+}
+
+function fmtVol2(val, unit) {
+  return val.toFixed(val < 10 ? 3 : val < 100 ? 2 : 1) + ' ' + unit;
+}
+
+window.calcSimpleDil = function() {
+  var c1raw = parseFloat(document.getElementById('sdil-c1').value);
+  var c2raw = parseFloat(document.getElementById('sdil-c2').value);
+  var v2raw = parseFloat(document.getElementById('sdil-v2').value);
+  var u1    = document.getElementById('sdil-u1').value;
+  var u2    = document.getElementById('sdil-u2').value;
+  var vu    = document.getElementById('sdil-vu').value;
+  var res   = document.getElementById('sdil-result');
+  var warn  = document.getElementById('sdil-warn');
+
+  if (!c1raw || !c2raw || !v2raw) { res.style.display = 'none'; return; }
+
+  var b1 = toBaseConc(c1raw, u1);
+  var b2 = toBaseConc(c2raw, u2);
+
+  // Check compatibility
+  if (b1.type !== b2.type) {
+    res.style.display = 'block';
+    warn.style.display = 'block';
+    document.getElementById('sdil-v1-result').textContent = '-';
+    document.getElementById('sdil-vdil-result').textContent = '-';
+    return;
+  }
+  warn.style.display = 'none';
+
+  if (b2.val >= b1.val) { res.style.display = 'none'; return; }
+
+  // C1V1 = C2V2 → V1 = C2*V2/C1
+  var v1 = (b2.val * v2raw) / b1.val;
+  var vdil = v2raw - v1;
+
+  res.style.display = 'block';
+  document.getElementById('sdil-v1-result').textContent = fmtVol2(v1, vu);
+  document.getElementById('sdil-vdil-result').textContent = fmtVol2(vdil, vu);
 };
 // ─── INIT ─────────────────────────────────────────────────────────────
 applyDark(); updProg(); updSavedBadge(); updAbBadge(); checkUrlRecipe(); applyI18n(); initAuth();
